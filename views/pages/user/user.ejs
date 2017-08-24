@@ -1,0 +1,141 @@
+<html>
+
+<head>
+    <% include  ../../partials/head %>
+        <style>
+            .validationFormControl {
+                color: red;
+            }
+        </style>
+        <!-- Propeller dataTables css-->
+</head>
+
+<body>
+    <% include  ../../partials/header %>
+        <!-- Overlay for sidebar -->
+        <div class="sidebar-overlay"></div>
+        <!-- Left sidebar -->
+        <% include  ../../partials/leftsidebar %>
+            <div id="content" class="pmd-content content-area dashboard">
+                <div class="container-fluid">
+                        <%if (canAddEdit == 1) { %>
+                    <div class="row" id="card-masonry">
+                        <div style="margin-bottom:10px;float:right">
+                            <button class="btn pmd-btn-fab pmd-btn-raised pmd-ripple-effect btn-primary" id="addAdminUser" type="button" onclick="adminUser.add()"><i class="material-icons pmd-sm">add</i></button>
+                        </div>
+                        <div class="page-content profile-edit section-custom">
+                            <div class="pmd-card pmd-z-depth" id="divAddAdminUser" style="display:none">
+                                <div class="pmd-card-body">
+                                    <div class="row">
+
+                                        <div class="col-lg-9 custom-col-9">
+                                            <h3 class="heading">Add Admin User</h3>
+                                                <form id="frmAdminUser" class="form-horizontal">
+                                                        <div class="form-group pmd-textfield">
+                                                            <label for="regular1" class="control-label">
+                                                                Role*
+                                                              </label>
+                                                              <select id="drpRole" class="select-simple form-control" name="role_id" validation="required">
+                                                                <option value="0" disabled selected >Select Role</option>
+                                                              </select>
+                                                              <span type="text" id="drpRole_validation" class="validationFormControl" style="display:none;">Please Select Role<span>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield ">
+                                                            <label for="regular1" class="control-label">
+                                                                user Name*
+                                                              </label>
+                                                            <input type="text" id="txtName" name="name" class="form-control" validation="required"><span class="pmd-textfield-focused"></span>
+                                                            <span type="text" id="txtName_validation" class="validationFormControl" style="display:none;">user Name Required<span>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield ">
+                                                            <label for="regular1" class="control-label">
+                                                                email*
+                                                              </label>
+                                                            <input type="text" id="txtEmail" name="email" class="form-control" validation="required,email"><span class="pmd-textfield-focused"></span>
+                                                            <span type="text" id="txtEmail_validation" class="validationFormControl" style="display:none;">Enter valid email address<span>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield ">
+                                                          <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="margin-top: 23px;">
+                                                              <div class="form-group pmd-textfield ">
+                                                                  <label for="regular1" class="control-label">
+                                                                      </label>
+                                                                  <input type="text" id="txtCountryCode" name="country_code" class="form-control itext" validation="required,onlydigit)" placeholder="91"><span class="pmd-textfield-focused"></span>
+                                                                  <span type="text" id="txtCountryCode_validation" class="validationFormControl" style="display:none;">Enter valid Country code</span>
+                                                              </div>
+                                                          </div>
+                                                          <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                                                              <div class="form-group pmd-textfield ">
+                                                                  <label for="regular1" class="control-label">
+                                                                        Contact Number*
+                                                                      </label>
+                                                                  <input type="text" id="txtContactNo" name="mobile" class="form-control itext" validation="required,onlydigit,size(10)"><span class="pmd-textfield-focused"></span>
+                                                                  <span type="text" id="txtContactNo_validation" class="validationFormControl" style="display:none;">Enter valid mobile number</span>
+                                                              </div>
+                                                          </div>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield ">
+                                                            <label for="regular1" class="control-label">
+                                                                Password*
+                                                              </label>
+                                                            <input type="password" id="txtPassword" name="password" class="form-control" validation="required"><span class="pmd-textfield-focused"></span>
+                                                            <span type="text" id="txtPassword_validation" class="validationFormControl" style="display:none;">Password is required<span>
+                                                        </div>
+
+                                                        <div class="form-group btns">
+                                                            <div class="col-sm-9 col-sm-offset-3">
+                                                                <a type="button" id="btnSubmit" class="btn btn-primary next" onclick="adminUser.save()">Submit</a>
+                                                                <a href="#" type="button" id="btnCancel" class="btn btn-default" onclick="adminUser.cancel()">Cancel</a>
+                                                            </div>
+                                                        </div>
+
+                                                </form>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                      <% } %>
+                    <div class="col-md-12" id="divAdminUser">
+                        <div class="component-box">
+                            <!-- table card example -->
+                            <div class="pmd-card pmd-z-depth pmd-card-custom-view">
+                                <div class="table-responsive">
+                                    <table id="gridAdminUser" style="width: 100%;" class="table pmd-table table-hover table-striped display responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Mobile</th>
+                                                <%if (canAddEdit == 1) { %>
+                                                   <th>Status</th>
+                                                  <th>Actions</th>
+                                                   <% } %>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- section content end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <script>
+              var canAddEdit = <%= canAddEdit %>
+              var canDelete = <%= canDelete %>
+            </script>
+            <% include  ../../partials/footertext %>
+                <% include  ../../partials/footer %>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="javascripts/conformation.min.js" charset="utf-8"></script>
+                    <!-- <script src="../../components/file-upload/js/upload-image.js"></script> -->
+                    <script type="text/javascript" src="../pages/user/user.js"></script>
+</body>
+
+</html>

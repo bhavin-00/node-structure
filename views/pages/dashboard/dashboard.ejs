@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+
+<head>
+    <% include  ../../partials/head %>
+</head>
+
+<body>
+    <% include  ../../partials/header %>
+        <div class="sidebar-overlay"></div>
+        <!-- Left sidebar -->
+        <% include  ../../partials/leftsidebar %>
+            <div id="content" class="pmd-content content-area dashboard">
+                <div class="container-fluid">
+                    <div class="row" id="card-masonry">
+                        <!-- Today's Site Activity -->
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                            <div class="pmd-card pmd-z-depth">
+                                <div class="pmd-card-title">
+                                    <div class="media-body media-middle">
+                                        <h2 class="pmd-card-title-text typo-fill-secondary">Dashboard Page<span class="grow-up"></span></h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end Today's Site Activity -->
+                    </div>
+                </div>
+            </div>
+            <!-- Overlay for sidebar -->
+            <% include  ../../partials/footertext %>
+              <% include  ../../partials/footer %>
+</body>
+
+</html>

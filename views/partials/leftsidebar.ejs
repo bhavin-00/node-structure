@@ -1,0 +1,37 @@
+<aside class="pmd-sidebar sidebar-default pmd-sidebar-slide-push pmd-sidebar-left pmd-sidebar-open bg-fill-darkblue sidebar-with-icons" role="navigation">
+	<ul class="nav pmd-sidebar-nav">
+
+		<!-- User info -->
+		<li class="dropdown pmd-dropdown pmd-user-info visible-xs visible-md visible-sm visible-lg">
+			<a aria-expanded="false" data-toggle="dropdown" class="btn-user dropdown-toggle media" data-sidebar="true" aria-expandedhref="javascript:void(0);">
+				<div class="media-left">
+					<img src="themes/images/user-icon.png" alt="New User">
+				</div>
+				<div class="media-body media-middle">Admin</div>
+				<div class="media-right media-middle"><i class="dic-more-vert dic"></i></div>
+			</a>
+			<ul class="dropdown-menu">
+				<li><a href="#" id="btnLogout" onclick="common.logout()">Logout</a></li>
+			</ul>
+		</li>
+		<!-- End user info -->
+		<% for(var i=0; i<objModules.length; i++) {%>
+		<li>
+			<a class="pmd-ripple-effect" href=/<%= objModules[i] %>>
+				<i class="media-left media-middle"><svg version="1.1" x="0px" y="0px" width="19.83px" height="18px" viewBox="287.725 407.535 19.83 18" enable-background="new 287.725 407.535 19.83 18"
+	 xml:space="preserve">
+<g>
+	<path fill="#C9C8C8" d="M307.555,407.535h-9.108v10.264h9.108V407.535z M287.725,407.535v6.232h9.109v-6.232H287.725z
+		 M296.834,415.271h-9.109v10.264h9.109V415.271z M307.555,419.303h-9.108v6.232h9.108V419.303z"/>
+</g>
+</svg></i>
+				<span class="media-body"><%= objModules[i] %></span>
+			</a>
+		</li>
+		<% } %>
+	</ul>
+</aside>
+<!-- End Left sidebar -->
+<!-- <script src="assets/js/jquery-1.12.2.min.js"></script>
+				<script src="javascripts/common.js" charset="utf-8"></script>
+				<script src="../partials/leftsidebar.js" charset="utf-8"></script> -->

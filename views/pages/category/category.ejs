@@ -1,0 +1,123 @@
+<html>
+
+<head>
+    <% include  ../../partials/head %>
+        <style>
+            .validationFormControl {
+                color: red;
+            }
+            .pmd-table tr td:nth-child(2) {
+                max-width: 400px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        </style>
+        <!-- Propeller dataTables css-->
+</head>
+
+<body>
+    <% include  ../../partials/header %>
+        <!-- Overlay for sidebar -->
+        <div class="sidebar-overlay"></div>
+        <!-- Left sidebar -->
+        <% include  ../../partials/leftsidebar %>
+            <div id="content" class="pmd-content content-area dashboard">
+                <div class="container-fluid">
+                        <%if (canAddEdit == 1) { %>
+                    <div class="row" id="card-masonry">
+                        <div style="margin-bottom:10px;float:right">
+                            <button class="btn pmd-btn-fab pmd-btn-raised pmd-ripple-effect btn-primary" id="addCategory" type="button" onclick="category.add()"><i class="material-icons pmd-sm">add</i></button>
+                        </div>
+                        <div class="page-content profile-edit section-custom">
+                            <div class="pmd-card pmd-z-depth" id="divAddCategory" style="display:none">
+                                <div class="pmd-card-body">
+                                    <div class="row">
+
+                                        <div data-provides="fileinput" class="fileinput fileinput-new col-lg-3">
+                                            <div data-trigger="fileinput" class="fileinput-preview thumbnail img-circle img-responsive" style="line-height: 136px;">
+                                                <img id="imageCategory" />
+                                            </div>
+                                            <div class="action-button">
+                                                <span class="btn btn-default btn-raised btn-file ripple-effect">
+									                          <span class="fileinput-new"><i class="material-icons md-light pmd-xs">add</i></span>
+                                                <span class="fileinput-exists"><i class="material-icons md-light pmd-xs">mode_edit</i></span>
+                                                <input type="hidden"><input type="file" name="mediaFile">
+                                                </span>
+                                                <a data-dismiss="fileinput" class="btn btn-default btn-raised btn-file ripple-effect fileinput-exists" href="javascript:void(0);"><i class="material-icons md-light pmd-xs">close</i></a>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 custom-col-9">
+                                            <h3 class="heading">Add Category</h3>
+                                            <div class="row">
+                                                <form id="frmCategory" class="form-horizontal">
+                                                    <fieldset>
+                                                        <div class="form-group pmd-textfield">
+                                                            <label for="regular1" class="control-label">
+                                                                Category Name*
+                                                              </label>
+                                                            <input type="text" id="txtCategoryName" class="form-control" name="category_name" validation="required"><span class="pmd-textfield-focused"></span>
+                                                            <span type="text" id="txtCategoryName_validation" class="validationFormControl" style="display:none;">Category Name Required<span>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield">
+                                                            <label class="control-label">Category Description</label>
+                                                            <textarea id="txtCategoryDesc" class="form-control" name="description"></textarea>
+                                                        </div>
+
+                                                        <div class="form-group btns">
+                                                            <div class="col-sm-9 col-sm-offset-3">
+                                                                <a type="button" id="btnSubmit" class="btn btn-primary next" onclick="category.save()">Submit</a>
+                                                                <a href="#" type="button" id="btnCancel" class="btn btn-default" onclick="category.cancel()">Cancel</a>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                      <% } %>
+                    <div class="col-md-12" id="divCategory">
+                        <div class="component-box">
+                            <!-- table card example -->
+                            <div class="pmd-card pmd-z-depth pmd-card-custom-view">
+                                <div class="table-responsive">
+                                    <table id="gridCategory" style="width: 100%;" class="table pmd-table table-hover table-striped display responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Category Name</th>
+                                                <th>Category Description</th>
+                                                <%if (canAddEdit == 1) { %>
+                                                  <th>Status</th>
+                                                  <th>Actions</th>
+                                                <% } %>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- section content end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <script>
+              var canAddEdit = <%= canAddEdit %>
+              var canDelete = <%= canDelete %>
+            </script>
+            <% include  ../../partials/footertext %>
+                <% include  ../../partials/footer %>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="javascripts/conformation.min.js" charset="utf-8"></script>
+                    <script type="text/javascript" src="../pages/category/category.js"></script>
+</body>
+
+</html>

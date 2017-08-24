@@ -1,0 +1,29 @@
+{
+  "dbConfig": {
+    "host": "192.168.0.23",
+    "port": "3306",
+    "user": "usr",
+    "password": "usr",
+    "database": "nodejsstructure",
+    "type": "database",
+    "databaseType": "mysql"
+  },
+  "port": 3000,
+  "environment": "production",
+  "isLogger": true,
+  "smsConfig": {
+    "URL": "http://luna.a2wi.co.in:7501/failsafe/HttpLink",
+    "proxyURL": "192.168.0.206",
+    "proxyPORT": "8080",
+    "messageTemplate": {
+      "OTP": "Your BAAApps OTP is {{otp}}"
+    },
+    "params": {
+      "aid": "****",
+      "pin": "*****",
+      "msgType": "**",
+      "signature": "****"
+    },
+    "test": true
+  }
+}

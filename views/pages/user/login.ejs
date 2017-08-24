@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include  ../../partials/head %>
+        <style>
+            .validationFormControl {
+                color: red;
+            }
+        </style>
+</head>
+
+<body class="container">
+    <div class="logincard">
+        <div class="pmd-card card-default pmd-z-depth">
+            <div class="login-card">
+                <form method="post" id="frmLogin" action="" method="post">
+                    <div class="pmd-card-title card-header-border text-center">
+                        <div class="loginlogo">
+                            <a href="javascript:void(0);"><img src="themes/images/Propeller-Logo-Inverse.png" alt="Logo"></a>
+                        </div>
+                        <h3>Sign In <span>with <strong>Nodejs Structure</strong></span></h3>
+                    </div>
+
+                    <div class="pmd-card-body">
+                        <div class="alert alert-success" role="alert"> Oh snap! Change a few things up and try submitting again. </div>
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label for="inputError1" class="control-label pmd-input-group-label">Email</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">perm_identity</i></div>
+                                <input type="email" class="form-control" id="inputEmail" validation="required,email">
+                                <span type="text" id="inputEmail_validation" class="validationFormControl" style="display:none;">Please Enter Valid Email Address<span>
+                            </div>
+                        </div>
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label for="inputError1" class="control-label pmd-input-group-label">Password</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">lock_outline</i></div>
+                                <input type="password" class="form-control" id="inputPassword" required>
+                                <span type="text" id="inputPassword_validation" class="validationFormControl" style="display:none;">Please Enter Password<span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pmd-card-footer card-footer-no-border card-footer-p16 text-center">
+                        <div class="form-group clearfix">
+                            <div class="checkbox pull-left">
+                                <label class="pmd-checkbox checkbox-pmd-ripple-effect">
+								<input type="checkbox" checked="" value="">
+								<span class="pmd-checkbox"> Remember me</span>
+							</label>
+                            </div>
+                            <span class="pull-right forgot-password">
+							<a href="javascript:void(0);">Forgot password?</a>
+						</span>
+                        </div>
+                        <a href="#" type="button" class="btn pmd-ripple-effect btn-primary btn-block" id="btnLogin">Login</a>
+
+                        <p class="redirection-link">Don't have an account? <a href="javascript:void(0);" class="login-register">Sign Up</a>. </p>
+
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="register-card">
+                <div class="pmd-card-title card-header-border text-center">
+                    <div class="loginlogo">
+                        <a href="javascript:void(0);"><img src="themes/images/Propeller-Logo-Inverse.png" alt="Logo"></a>
+                    </div>
+                    <h3>Sign Up <span>with <strong>Nodejs Structure</strong></span></h3>
+                </div>
+                <form id="validationForm" action="" method="post">
+                    <div class="pmd-card-body">
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label class="control-label pmd-input-group-label">Username</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">perm_identity</i></div>
+                                <input type="text" class="form-control" id="txtUserName" validation="required">
+                                <span type="text" id="txtUserName_validation" class="validationFormControl" style="display:none;">UserName Required<span>
+                            </div>
+                        </div>
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label  class="control-label pmd-input-group-label">Email address</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">email</i></div>
+                                <input type="text" class="form-control" id="txtEmail" validation = "required,email">
+                                <span type="text" id="txtEmail_validation" class="validationFormControl" style="display:none;">Please Enter Valid Email Address<span>
+                            </div>
+                        </div>
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label  class="control-label pmd-input-group-label">Mobile Number</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">call</i></div>
+                                <input type="text" class="form-control" id="txtNumber" validation = "required,onlydigit,size(10)">
+                                <span type="text" id="txtNumber_validation" class="validationFormControl" style="display:none;">Please Enter Valid Number<span>
+                            </div>
+                        </div>
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label class="control-label pmd-input-group-label">Password</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">lock_outline</i></div>
+                                <input type="password" class="form-control" id="txtPwd1" validation = "required">
+                                <span type="text" id="txtPwd1_validation" class="validationFormControl" style="display:none;">Password Required<span>
+                            </div>
+                        </div>
+
+                        <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                            <label class="control-label pmd-input-group-label">Confirm Password</label>
+                            <div class="input-group">
+                                <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">lock_outline</i></div>
+                                <input type="password" class="form-control" id="txtPwd2" validation = "required">
+                                <span type="text" id="txtPwd2_validation" class="validationFormControl" style="display:none;">Password Required<span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pmd-card-footer card-footer-no-border card-footer-p16 text-center">
+                        <a href="#" type="button" id="btnSignup" class="btn pmd-ripple-effect btn-primary btn-block">Sign Up</a>
+                        <p class="redirection-link">Already have an account? <a href="javascript:void(0);" class="register-login">Sign In</a>. </p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="forgot-password-card">
+                <form>
+                    <div class="pmd-card-title card-header-border text-center">
+                        <div class="loginlogo">
+                            <a href="javascript:void(0);"><img src="themes/images/Propeller-Logo-Inverse.png" alt="Logo"></a>
+                        </div>
+                        <h3>Forgot password?<br><span>Submit your email address and we'll send you a link to reset your password.</span></h3>
+                            </div>
+                            <div class="pmd-card-body">
+                                <div class="form-group pmd-textfield pmd-textfield-floating-label">
+                                    <label for="inputError1" class="control-label pmd-input-group-label">Email address</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="material-icons md-dark pmd-sm">email</i></div>
+                                        <input type="text" class="form-control" id="exampleInputAmount">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pmd-card-footer card-footer-no-border card-footer-p16 text-center">
+                                <a href="index.html" type="button" class="btn pmd-ripple-effect btn-primary btn-block">Submit</a>
+                                <p class="redirection-link">Already registered? <a href="javascript:void(0);" class="register-login">Sign In</a></p>
+                            </div>
+                </form>
+                </div>
+                </div>
+            </div>
+            <button type="button" id ="btnSuccess" style="display:none" data-positionX="right" data-positionY="top" data-effect="fadeInUp" data-message="Well done! You successfully read this important alert message." data-type="success" class="btn pmd-ripple-effect btn-success pmd-z-depth pmd-alert-toggle">Alert Success</button>
+            <!--Error Alert -->
+            <button type="button" id ="btnError" style="display:none"  data-positionX="right" data-positionY="top" data-effect="fadeInUp" data-message="Oh snap! Change a few things up and try submitting again." data-type="error" class="btn pmd-ripple-effect btn-danger pmd-z-depth pmd-alert-toggle">Alert Error</button>
+            <footer>
+                <% include  ../../partials/footer %>
+                    <script src="javascripts/common.js" charset="utf-8"></script>
+                    <script src="javascripts/jquery.validate.js"></script>
+                    <script src="javascripts/constant.js" charset="utf-8"></script>
+                    <script src="../pages/user/login.js" charset="utf-8"></script>
+            </footer>
+
+</body>
+
+</html>

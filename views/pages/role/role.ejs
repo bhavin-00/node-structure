@@ -1,0 +1,125 @@
+<html>
+
+<head>
+    <% include  ../../partials/head %>
+        <style>
+            .validationFormControl {
+                color: red;
+            }
+        </style>
+        <!-- Propeller dataTables css-->
+</head>
+
+<body>
+    <% include  ../../partials/header %>
+        <!-- Overlay for sidebar -->
+        <div class="sidebar-overlay"></div>
+        <!-- Left sidebar -->
+        <% include  ../../partials/leftsidebar %>
+            <div id="content" class="pmd-content content-area dashboard">
+                <div class="container-fluid">
+                        <%if (canAddEdit == 1) { %>
+                    <div class="row" id="card-masonry">
+                        <div style="margin-bottom:10px;float:right">
+                            <button class="btn pmd-btn-fab pmd-btn-raised pmd-ripple-effect btn-primary" id="addRole" type="button" onclick="role.add()"><i class="material-icons pmd-sm">add</i></button>
+                        </div>
+                        <div class="page-content profile-edit section-custom">
+                            <div class="pmd-card pmd-z-depth" id="divAddRole" style="display:none;">
+                                <div class="pmd-card-body">
+                                    <div class="row">
+
+                                        <div class="col-lg-9 custom-col-9">
+                                            <h3 class="heading">Add Role</h3>
+                                                <form id="frmRole" class="form-horizontal">
+                                                        <div class="form-group pmd-textfield">
+                                                            <label for="regular1" class="control-label">
+                                                                User Type*
+                                                              </label>
+                                                              <select id="drpUserType" class="select-simple form-control" name="drpUserType_id" validation="required">
+                                                                <option value="0" disabled selected >Select User Type</option>
+                                                              </select>
+                                                              <span type="text" id="drpUserType_validation" class="validationFormControl" style="display:none;">Please Select User Type<span>
+                                                        </div>
+                                                        <div class="form-group pmd-textfield ">
+                                                            <label for="regular1" class="control-label">
+                                                                Role*
+                                                              </label>
+                                                            <input type="text" id="txtRole" name="name" class="form-control" validation="required"><span class="pmd-textfield-focused"></span>
+                                                            <span type="text" id="txtRole_validation" class="validationFormControl" style="display:none;">Role is Required<span>
+                                                        </div>
+                                                      
+                                                       <!-- table card example -->
+                                                        <div class="pmd-card pmd-z-depth pmd-card-custom-view">
+                                                            <div class="table-responsive">
+                                                                <table id="gridModule" style="width: 100%;" class="table pmd-table table-hover table-striped display responsive nowrap" cellspacing="0" width="100%">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Module</th>
+                                                                            <th>Can View</th>
+                                                                            <th>Can Add/Edit</th>
+                                                                            <th>Can Delete</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group btns">
+                                                            <div class="col-sm-9 col-sm-offset-3">
+                                                                <a type="button" id="btnSubmit" class="btn btn-primary next" onclick="role.save()">Submit</a>
+                                                                <a href="#" type="button" id="btnCancel" class="btn btn-default" onclick="role.cancel()">Cancel</a>
+                                                            </div>
+                                                        </div>
+
+                                                </form>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                      <% } %>
+                    <div class="col-md-12" id="divRole">
+                        <div class="component-box">
+                            <!-- table card example -->
+                            <div class="pmd-card pmd-z-depth pmd-card-custom-view">
+                                <div class="table-responsive">
+                                    <table id="gridrole" style="width: 100%;" class="table pmd-table table-hover table-striped display responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Role</th>
+                                                <th>User Type</th>
+                                                <%if (canAddEdit == 1) { %>
+                                                  <th>Actions</th>
+                                                   <% } %>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- section content end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <script>
+              var canAddEdit = <%= canAddEdit %>
+              var canDelete = <%= canDelete %>
+            </script>
+            <% include  ../../partials/footertext %>
+                <% include  ../../partials/footer %>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="assets/js/platform.js" async defer></script>
+                    <script src="javascripts/conformation.min.js" charset="utf-8"></script>
+                    <!-- <script src="../../components/file-upload/js/upload-image.js"></script> -->
+                    <script type="text/javascript" src="../pages/role/role.js"></script>
+</body>
+
+</html>

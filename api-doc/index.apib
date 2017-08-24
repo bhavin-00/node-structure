@@ -1,0 +1,1224 @@
+FORMAT: 1A
+HOST: http://192.168.0.88:3000/api/v1
+
+# Nodejs Structure API
+
+### Version: v1
+This API documentation is given details about the all Nodejs Structure API list.
+It is basically a reference documents which describes:
+
+  - A Software’s code
+  - The parameters a programmer sends (or the request sent) to the server.
+  - What the server does
+  - Response from the server
+
+API documentation includes information about the code. It gives details about the APIs (also called methods and functions)
+that developers use to connect or interface with the server.
+
+# Group User
+<!--------------------------------------- USER API START --------------------------------------->
+This section groups User specific API
+
+### SIGNUP  [POST /user/user-signup]
+Signup in nodejs structure app.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+  + Body
+
+            {
+              "name": "Chandrakant",
+              "email": "chandrakant.thakkar@gmail.com",
+              "country_code": "+91",
+              "number": "9427536259",
+              "password": "chintu@123#"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17014,
+                "message": "Registration Successfully"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2005,
+                "message": "Invalid SignUp Request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                  "code": 17001,
+                  "message": 'User is Already Exist.'
+                }
+            }
+
+### SIGNIN  [POST /user/user-signin]
+SignIn in nodejs Structure App.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+  + Body
+
+            {
+              "user_name": "chandrakant.thakkar@gmail.com",//user_name : 9427536259
+              "password": "chintu@123#"
+            }
+
++ Response 200 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "access_token": "85ac2760-c354-11e6-aed0-69c0ab45d28d",
+              "data": {
+                "user_id": "1",
+                "country_code": "91",
+                "mobile": "9427536259",
+                "name": "Chandrakant",
+                "email": "chandrakant.thakkar@gmail.com",
+                "profile_photo": ""
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2009,
+                "message": "Invalid SignIn Request"
+              }
+            }
+
+### Signout [POST /user/signout]
+Signout from nodejs structure app.
+
++ Request (application/json)
+    + Headers
+
+            api-key: 1,
+            Authorization: "bzrUyDRR1J7QFF0aWchk",
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17012,
+                "message": "Signout successfully."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17013,
+                "message": "Signout is not proper"
+              }
+            }
+
+### Change Password [POST /user/user-changepassword]
+Change Password.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:4742f500-d635-11e6-8261-39cdd731e58b
+
+  + Body
+
+            {
+              "old_password": "chintu",
+              "new_password": "chintucbt",
+              "retype_password": "chintucbt"
+            }
+
++ Response 201 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17009,
+                "message": "Password change successfully"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17010,
+                "message": "Old password is not match."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17022,
+                "message": "Password Not Match"
+              }
+            }
+
+### Forgot Password [POST /user/user-forgotpassword]
+Forgot Password.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+  + Body
+
+            {
+              "user_id": "107",
+              "new_password": "chintu",
+              "retype_password": "chintu"
+            }
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": {
+                  "code": 17009,
+                  "message": "Password change successfully"
+                }
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 17006,
+                  "message": "User is not exist."
+                }
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 17022,
+                  "message": "Password Not Match"
+                }
+              }
+
+### Get User List [GET /user/get-userlist/{userType}]
+Get list of users by user type.
+
++ Parameters
+  + userType: `-1` (number,required)-get all users.
+    userType: `userType` (number,required) - get particular type of users.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "user_id": "1",
+                "role_id": "1",
+                "name": "Chandrakant",
+                "email": "chandrakant.thakkar@gmail.com",
+                "country_code": "91",
+                "mobile": "9427536259",
+                "user_type_id": "1",
+                "role": "admin",
+                "type": "admin",
+                "is_active":1
+                }, {
+                "user_id": "2",
+                "role_id": "1",
+                "name": "Chintu",
+                "email": "thakkarchintu@gmail.com",
+                "country_code": "91",
+                "mobile": "7698777871",
+                "user_type_id": "1",
+                "role": "admin",
+                "type": "admin",
+                "is_active":1
+                }]
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 2045,
+                  "message": "unable to get users"
+                }
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 2047,
+                  "message": 'Invalid get user list Request.'
+                }
+              }
+
+### Send  OTP [POST /user/user-sendotp]
+Send OTP on specified mobile number.
+
++ Request (application/json)
+    + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+    + Body
+
+            {
+              "country_code": "+91",
+              "mobile": "9427536259"
+            }
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17003,
+                "message": "One Time Password (OTP) has been sent to your mobile ******2912, please enter the same here to signin."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2006,
+                "message": "Invalid send otp request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17004,
+                "message": "You have exceeded the maximum number of attempts at this time. Please wait 24 hours and try again later."
+              }
+            }
+
+### Verify an OTP [POST /user/user-verifyotp]
+Verify OTP of specified mobile number.
+
++ Request (application/json)
+    + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+    + Body
+
+            {
+              "country_code": "+91",
+              "mobile": "9427536259",
+              "otp": "7777"
+            }
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+              "status": true,
+              "data": {
+                "user_id": "1",
+                "country_code": "91",
+                "mobile": "9427536259",
+                "role": "admin",
+                "user_type_id": "1",
+                "name": "Chandrakant",
+                "email": "chandrakant.thakkar@gmail.com",
+                "profile_photo": "",
+                "module_name": "user",
+                "can_view": "1",
+                "can_add_edit": "1",
+                "can_delete": "1",
+                "admin_created": "1"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2007,
+                "message": "Invalid verify otp request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17005,
+                "message": "Invalid one time password (OTP) entered."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17007,
+                "message": "One Time Password (OTP) was expired."
+              }
+            }
+
+### Add Update AdminUser  [POST /user/addupdate-adminuser]
+Add or Update AdminUser in nodejs structure app.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+              "user_id": "-1",
+              "name":"Chandrakant",
+              "email": "chandrakant.thakkar@gmail.com",
+              "country_code": "+91",
+              "number": "9427536259",
+              "password": "chintu@123#",
+              "role_id":"1"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "status": true,
+              "data": {
+                 "code": 17017,
+                 "message": 'Admin user sucessfully created.'
+              }
+            }
+
+            {
+              "status": true,
+              "data": {
+                 "code": 17021,
+                 "message": 'Admin User sucessfully updated'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2005,
+                "message": "Invalid SignUp Request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                  "code": 17006,
+                  "message": 'User is not exist.'
+                }
+            }
+
+            {
+              "status": false,
+              "error": {
+                  "code": 17001,
+                  "message": 'User is Already Exist.'
+                }
+            }
+
+            {
+              "status": false,
+              "error": {
+                  "code": 2031,
+                  "message": 'Invalid request to add update admin user'
+                }
+            }
+
+### Get admin user list List [GET /user/get-adminuser]
+Get list of admin users.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "user_id": "1",
+                "role_id": "1",
+                "name": "Chandrakant",
+                "email": "chandrakant.thakkar@gmail.com",
+                "country_code": "91",
+                "mobile": "9427536259",
+                "user_type_id": "1",
+                "role": "admin",
+                "type": "admin",
+                "is_active":1
+                }, {
+                "user_id": "2",
+                "role_id": "1",
+                "name": "Chintu",
+                "email": "thakkarchintu@gmail.com",
+                "country_code": "91",
+                "mobile": "7698777871",
+                "user_type_id": "1",
+                "role": "admin",
+                "type": "admin",
+                "is_active":1
+                }]
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 2045,
+                  "message": "unable to get users"
+                }
+              }
+
+              {
+                "status": false,
+                "error": {
+                  "code": 2047,
+                  "message": 'Invalid get user list Request.'
+                }
+              }
+
+### Get User Role [GET /user/get-userrole/{roleID}/{userTypeID}]
+Get list of role by role id or user type
+
++ Parameters
+  + userTypeID: `-1` (number,required)-get all role.
+    userTypeID: `userTypeID` (number,required) - get particular user type of role.
+
+  + roleID: `-1` (number,required)-get all role.
+    roleID: `roleID` (number,required) - get particular role type of role.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "role_id": "1",
+                "user_type_id": "1",
+                "role": "admin",
+                "type": "admin",
+                }, {
+                "role_id": "2",
+                "user_type_id": "3",
+                "role": "sub admin",
+                "type": "admin",
+                }]
+              }
+
+              {
+                "status": false,
+                "error": {
+                   "code": 17020,
+                   "message": 'Invalid request to get role'
+                }
+              }
+
+### remove Admin User [DELETE /user/remove-adminuser/{userId}]
+Remove admin user.
+
++ Parameters
+    + userId: `2` (number) - id of the admin user.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+            }
+
++ Response 201 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17019,
+                "message": 'User sucessfully deleted.'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+            {
+              "status": false,
+              "error": {
+                "code": 17018,
+                "message": 'Invalid request to delete user.'
+              }
+            }
+
+### Admin SignIn  [POST /user/user-signin-admin]
+SignIn in nodejs Structure App for Admin user.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome"
+
+  + Body
+
+            {
+              "user_name": "chandrakant.thakkar@gmail.com",
+              "password": "chintu@123#"
+            }
+
++ Response 200 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "access_token": "85ac2760-c354-11e6-aed0-69c0ab45d28d",
+              "data": [{
+                "user_id": "1",
+                "country_code": "91",
+                "mobile": "9427536259",
+                "name": "Chandrakant",
+                "email": "chandrakant.thakkar@gmail.com",
+                "profile_photo": "",
+                "module_name":"user",
+                "can_view":1,
+                "can_add_edit":1,
+                "can_delete":1,
+                "admin_created":1
+              }]
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2009,
+                "message": "Invalid SignIn Request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 17015,
+                "message": 'Please enter valid email and password.'
+              }
+            }
+
+### Get user type [GET /user/get-usertype]
+Get list of user type.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "typeid": "1",
+                "type": "admin",
+                }, {
+                "typeid": "2",
+                "type": "sub admin",
+                }]
+              }
+
+              {
+                "status": false,
+                "error": {
+                   "code": 17023,
+                   "message": 'Invalid request to get user type'
+                }
+              }
+
+# Group Role
+<!--------------------------------------- CATEGORY API START --------------------------------------->
+This section groups Role specific API
+
+### add/update Role [POST /role/addupdate-role]
+You can Add and Update Role.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+              "role_id": -1, //(number) role_id:-1 for Add OR role_id:<role_id> for update.
+              "roleName": "sub admin",//(string)
+              "userTypeId": "1",
+              "moduleRights": [{
+                "moduleId": "1",
+                "canView": 1,
+                "canAddEdit": 1,
+                "canDelete": 1,
+              }]
+            }
+
++ Response 201 (application/json)
+
+      + Body
+
+
+
+            {
+               "status": true,
+               "data": {
+                  "code": 12020,
+                  "message": "Role created successfully."
+               }
+            }
+
+            {
+              "status": true,
+              "data": {
+                 "code": 12021,
+                 "message": "Role updated successfully."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 12019,
+                "message": "Invalid get role request."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+
+### Get Role Module Mapping [GET /role/get-roleModuleMapping/{roleID}/{moduleID}]
+Get role module mapping by role id or module id
+
++ Parameters
+  + moduleID: `-1` (number,required)-get all role module mapping data.
+    moduleID: `moduleID` (number,required) - get particular module type of role module mapping data.
+
+  + roleID: `-1` (number,required)-get all role module mapping data.
+    roleID: `roleID` (number,required) - get particular role type of role module mapping data.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "moduleid": "1",
+                "roleid": "1",
+                "canView": "1",
+                "canAddEdit": "1",
+                "canDelete": "1",
+                }, {
+                "moduleid": "2",
+                "roleid": "1",
+                "canView": "1",
+                "canAddEdit": "0",
+                "canDelete": "0",
+                }]
+              }
+
+              {
+                "status": false,
+                "error": {
+                   "code": 17024,
+                   "message": 'Invalid request to get role module mapping'
+                }
+              }
+
+### Remove Role [DELETE /role/remove-role/{roleId}]
+Remove Role.
+
++ Parameters
+    + roleId: `2` (number) - id of the role.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+            }
+
++ Response 201 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 17027,
+                "message": 'Role sucessfully deleted.'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+            {
+              "status": false,
+              "error": {
+                "code": 17025,
+                "message": 'Invalid request to remove role.'
+              }
+            }
+            {
+              "status": false,
+              "error": {
+                "code": 17026,
+                "message": 'You cannot remove role now.'
+              }
+            }
+
+# Group Other
+<!--------------------------------------- OTHER API START --------------------------------------->
+This section groups Other specific API
+
+### Avtive Deactive [POST /other/active]
+You can Active or Deactive status.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+              "tbl_code": -1, //(number) role_id:-1 for Add OR role_id:<role_id> for update.
+              "is_active": "sub admin",//(string)
+              "id": "1",
+            }
+
++ Response 201 (application/json)
+
+      + Body
+
+
+
+            {
+               "status": true,
+               "data": {
+                  "code": 12017,
+                  "message": "Active status changed Successfully."
+               }
+            }
+
+            {
+              "status": false,
+              "error": {
+                 "code": 17016,
+                 "message": 'User Info is undefined.'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                 "code": 12014,
+                 "message": "Invalid Active or In-Active api Request."
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                 "code": 12015,
+                 "message": "Invalid Table Active or In-Active Request"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+
+
+### get Module [GET /other/getModule]
+You can get all module list.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+            }
+
++ Response 201 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "data": [{
+                "moduleid": "1",
+                "modulename": "user",
+                "admincreated": "1"
+              }, {
+                "moduleid": "2",
+                "modulename": "role",
+                "admincreated": "1"
+              }]
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2046,
+                "message": 'Invalid request to get module'
+              }
+            }
+
+# Group Category
+<!--------------------------------------- OTHER API START --------------------------------------->
+This section groups Category specific API
+
+### add/update Category [POST /category/addupdate-category]
+You can Add and Update Category.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:ios
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+              "category_id": -1, //(number) role_id:-1 for Add OR role_id:<role_id> for update.
+              "category_name": "Fruit",//(string)
+              "description": "This is Fruit type Category",
+              "imageObj": [{
+                "size": 620888,
+                "path": "D:\\gitlab\\tmp_Images\\upload_5dd708d459a7ca653e49e072066dde81.jpg",
+                "name": "Tulips.jpg",
+                "type": "image/jpeg",
+                "mtime": "2017-02-03T09:57:34.603Z"
+              }]
+            }
+
++ Response 201 (application/json)
+
+      + Body
+
+
+
+            {
+               "status": true,
+               "data": {
+                  "code": 18004,
+                  "message": 'Category added successfully'
+               }
+            }
+
+            {
+              "status": true,
+              "data": {
+                 "code": 18007,
+                 "message": 'Category updated successfully'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                  "code": 2014,
+                  "message": 'Invalid category add/update request'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                 "code": 17016,
+                 "message": 'User Info is undefined.'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 18022,
+                "message": 'Category is Exist.'
+              }
+            }
+
+
+
+### Get Category [GET /category/get-roleModuleMapping/{roleID}/{moduleID}]
+Get category by category id or active status
+
++ Parameters
+  + categoryID: `-1` (number,required)-get all categories.
+    categoryID: `categoryID` (number,required) - get category with particular Id.
+
+  + activeStatus: `-1` (number,required)-get all categories with any status.
+    activeStatus: `activeStatus` (number,required) - get category with specific active status.
+
++ Request (application/json)
+  + Headers
+
+            api-key: 1,
+            udid: "8817480565574762",
+            device-type: "Chrome",
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+
++ Response 201 (application/json)
+
+      + Body
+
+              {
+                "status": true,
+                "data": [{
+                "category_id": "1",
+                "category_name": "Fruit",
+                "description": "This is Fruit type category",
+                "image_name": "http://localhost:3000/image/Fruit.jpg",
+                "is_active": "1",
+                }, {
+                "category_id": "Electroinic",
+                "category_name": "Fan",
+                "description": "This is Electronic type category",
+                "image_name": "http://localhost:3000/image/Fan.jpg",
+                "is_active": "1",
+                }]
+              }
+
+
+              {
+              "status": false,
+              "error": {
+                 "code": 17016,
+                 "message": 'User Info is undefined.'
+              }
+             }
+
+             {
+              "status": false,
+              "error": {
+                 "code": 12018,
+                 "message": "Invalid active status."
+              }
+             }
+
+             {
+              "status": false,
+              "error": {
+                 "code": 18005,
+                 "message": 'No category found'
+              }
+             }
+
+### Remove Category [DELETE /category/remove-category/{categoryID}]
+Remove Category with specifi categoryID.
+
++ Parameters
+    + categoryID: `2` (number) - id of the category.
+
++ Request (application/json)
+  + Headers
+
+            api-key:1
+            udid:8817480565574762
+            device-type:Chrome
+            Authorization:868cf820-95ba-11e6-9a61-95252378a55
+
+  + Body
+
+            {
+            }
+
++ Response 201 (application/json)
+
+  + Body
+
+            {
+              "status": true,
+              "data": {
+                "code": 18009,
+                "message": 'Category Remove successfully.'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 401,
+                "message": "Unauthorized access"
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                "code": 2018,
+                "message": 'Invalid category DELETE request'
+              }
+            }
+
+            {
+              "status": false,
+              "error": {
+                 "code": 17016,
+                 "message": 'User Info is undefined.'
+              }
+             }
+
+             {
+              "status": false,
+              "error": {
+                "code": 18008,
+                "message": 'This CategoryID is not Valid.'
+              }
+             }
