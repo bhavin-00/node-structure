@@ -252,6 +252,10 @@ var userMessages = {
   'MSG_ROLE_SUCESSFULLY_DELETED':{
     code: 17027,
     message: 'Role sucessfully deleted.'
+  },
+  'MSG_ERROR_IN_QUERY':{
+    code: 17028,
+    message: 'Error in execute query.'
   }
 };
 

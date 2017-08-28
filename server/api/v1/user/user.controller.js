@@ -11,7 +11,7 @@ var constant = require('../constant');
  * @param  {[type]} response [description]
  * @return {[type]}          [description]
  */
-var signup = function (request, response) {
+var signup =  function (request, response) {
     debug("user.controller -> singup");
     if (request.body !== undefined && typeof request.body === "object") {
         userService.signupService(request, function (result) {
@@ -315,9 +315,9 @@ var removeAdmin = function (request, response) {
 * @return {object}
 */
 var signinAdmin = function (request, response) {
-    debug("user.controller - > signin Admin");
+    console.log("user.controller - > signin Admin");
     if (request.body !== undefined && typeof request.body === "object") {
-        userService.signinServiceAdmin(request, function (result) {
+        userService.signinServiceAdmin(request,response, function (result) {
             if (result.status === true) {
                 var session = request.session;
                 session.userInfo = {

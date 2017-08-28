@@ -21,7 +21,7 @@ var dbDateFormat = constant.appConfig.DB_DATE_FORMAT;
  * @param  {Function} cb          [description]
  * @return {[type]}               [description]
  */
-var checkUserIsExist = function (countryCode, mobile,email, cb) {
+var checkUserIsExist = async function (countryCode, mobile,email) {
   debug("user.DAL -> checkUserIsExist");
   var checkUserIsExistQuery = common.cloneObject(query.checkUserIsExistQuery);
   checkUserIsExistQuery.filter.or[0].and[0].value = countryCode;
@@ -31,7 +31,7 @@ var checkUserIsExist = function (countryCode, mobile,email, cb) {
   }else{
     checkUserIsExistQuery.filter.or[1].value = "";
   }
-  common.executeQuery(checkUserIsExistQuery, cb);
+  return await common.executeQuery(checkUserIsExistQuery);
 };
 
 /**
@@ -42,11 +42,11 @@ var checkUserIsExist = function (countryCode, mobile,email, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var createUser = function (fieldValue, cb) {
+var createUser = async function (fieldValue) {
   debug("user.DAL -> createUser");
   var createUserQuery = common.cloneObject(query.createUserQuery);
   createUserQuery.insert = fieldValue;
-  common.executeQuery(createUserQuery, cb);
+  return await common.executeQuery(createUserQuery);
 };
 
 
@@ -89,7 +89,8 @@ var userLogin = function (countryCode, mobile, password, email, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var exprieAccessToken = function (userId, deviceId, host, cb) {
+var exprieAccessToken = async function (userId, deviceId, host) {
+
   debug("user.DAL -> exprieAccessToken");
   var updateAccessTokenQuery = common.cloneObject(query.updateAccessTokenQuery);
   if (userId === undefined) {
@@ -100,7 +101,7 @@ var exprieAccessToken = function (userId, deviceId, host, cb) {
     updateAccessTokenQuery.filter.or[0].and[1].value = deviceId;
     updateAccessTokenQuery.filter.or[0].and[2].value = host;
   }
-  common.executeQuery(updateAccessTokenQuery, cb);
+  return await common.executeQuery(updateAccessTokenQuery);
 };
 
 /**
@@ -116,12 +117,12 @@ var exprieAccessToken = function (userId, deviceId, host, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var createAccessToken = function (userId, token, expiryDateTime, deviceId, host, cb) {
+var createAccessToken = async function (userId, token, expiryDateTime, deviceId, host) {
   debug("user.DAL -> accessTokenGenerate");
   var insertAccessTokenQuery = common.cloneObject(query.insertAccessTokenQuery);
   var dbExpiryDateTime = d3.timeFormat(dbDateFormat)(new Date(expiryDateTime));
   insertAccessTokenQuery.insert.fValue = [userId, token, dbExpiryDateTime, deviceId, host];
-  common.executeQuery(insertAccessTokenQuery, cb);
+  return await common.executeQuery(insertAccessTokenQuery);
 };
 
 
@@ -135,12 +136,12 @@ var createAccessToken = function (userId, token, expiryDateTime, deviceId, host,
  * @param  {Function} cb
  * @return {object}
  */
-var checkUserTransaction = function (deviceId, deviceType, cb) {
+var checkUserTransaction = async function (deviceId, deviceType) {
   debug("user.DAL -> checkUserTransaction");
   var checkUserTransactionQuery = common.cloneObject(query.checkUserTransactionQuery);
   checkUserTransactionQuery.filter.and[0].value = deviceId;
   checkUserTransactionQuery.filter.and[1].value = deviceType;
-  common.executeQuery(checkUserTransactionQuery, cb);
+  return await common.executeQuery(checkUserTransactionQuery);
 };
 
 /**
@@ -154,13 +155,13 @@ var checkUserTransaction = function (deviceId, deviceType, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var updateUserTransaction = function (deviceId, deviceType, fieldValue, cb) {
+var updateUserTransaction = function (deviceId, deviceType, fieldValue) {
   debug("user.DAL -> updateUserTransaction");
   var updateUserTransactionQuery = common.cloneObject(query.updateUserTransactionQuery);
   updateUserTransactionQuery.filter.and[0].value = deviceId;
   updateUserTransactionQuery.filter.and[1].value = deviceType;
   updateUserTransactionQuery.update = fieldValue;
-  common.executeQuery(updateUserTransactionQuery, cb);
+  return common.executeQuery(updateUserTransactionQuery);
 };
 
 /**
@@ -173,37 +174,13 @@ var updateUserTransaction = function (deviceId, deviceType, fieldValue, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var createUserTransaction = function (deviceId, deviceType, cb) {
+var createUserTransaction = function (deviceId, deviceType) {
   debug("user.DAL -> createUserTransaction");
   var insertUserTransactionQuery = common.cloneObject(query.insertUserTransactionQuery);
   insertUserTransactionQuery.insert.fValue = [deviceId, deviceType];
-  common.executeQuery(insertUserTransactionQuery, cb);
+  return common.executeQuery(insertUserTransactionQuery);
 };
 
-/**
- * Created By: CBT
- * Updated By: CBT
- *
- *
- * @param  {string}   userId
- * @param  {string}   deviceId
- * @param  {string}   host
- * @param  {Function} cb
- * @return {object}
- */
-var exprieAccessToken = function (userId, deviceId, host, cb) {
-  debug("user.DAL -> exprieAccessToken");
-  var updateAccessTokenQuery = common.cloneObject(query.updateAccessTokenQuery);
-  if (userId === undefined) {
-    updateAccessTokenQuery.filter.or[1].value = deviceId;
-    updateAccessTokenQuery.filter.or[2].value = host;
-  } else {
-    updateAccessTokenQuery.filter.or[0].and[0].value = userId;
-    updateAccessTokenQuery.filter.or[0].and[1].value = deviceId;
-    updateAccessTokenQuery.filter.or[0].and[2].value = host;
-  }
-  common.executeQuery(updateAccessTokenQuery, cb);
-};
 
 
 /**
@@ -232,12 +209,12 @@ var validateUser = function (userId, password, cb) {
  * @param  {Function} cb       [description]
  * @return {[type]}            [description]
  */
-var updateUserInfoById = function (userId, fieldValue, cb) {
+var updateUserInfoById = async function (userId, fieldValue) {
   debug("user.DAL -> updateUserInfoById");
   var updateUserQuery = common.cloneObject(query.updateUserQuery);
   updateUserQuery.filter.or[1].value = userId;
   updateUserQuery.update = fieldValue;
-  common.executeQuery(updateUserQuery, cb);
+  return await common.executeQuery(updateUserQuery);
 };
 
 /**
@@ -458,12 +435,12 @@ var removeUser = function(userID,cb){
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var userLoginAdmin = function(email, password, cb) {
-  debug("user.DAL -> userLogin admin");
-  var getUserInfoQueryAdmin = common.cloneObject(query.getUserInfoQueryAdmin);
-  getUserInfoQueryAdmin.filter.and[2].value = email;
-  getUserInfoQueryAdmin.filter.and[3].value = password;
-  common.executeQuery(getUserInfoQueryAdmin, cb);
+var userLoginAdmin = async function(email, password) {
+    debug("user.DAL -> userLogin admin");
+    var getUserInfoQueryAdmin = common.cloneObject(query.getUserInfoQueryAdmin);
+    getUserInfoQueryAdmin.filter.and[2].value = email;
+    getUserInfoQueryAdmin.filter.and[3].value = password;
+    return await common.executeQuery(getUserInfoQueryAdmin);
 }
 
 /**
@@ -487,7 +464,6 @@ module.exports = {
   checkUserTransaction: checkUserTransaction,
   updateUserTransaction: updateUserTransaction,
   createUserTransaction: createUserTransaction,
-  exprieAccessToken:exprieAccessToken,
   validateUser:validateUser,
   updateUserInfoById:updateUserInfoById,
   checkUserIdIsValid:checkUserIdIsValid,

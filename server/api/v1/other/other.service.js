@@ -90,7 +90,7 @@ var getModuleService = function (request, cb) {
  * @param  {string}   imageFolder
  * @param  {Function} cb
  */
-var imageUploadMoving = function (fileObj, imageFolder, cb) {
+var imageUploadMoving = async function (fileObj, imageFolder) {
   debug("other.service -> imageUploadMoving");
   var activePath = '';
   var subFolder = '';
@@ -100,14 +100,16 @@ var imageUploadMoving = function (fileObj, imageFolder, cb) {
     subFolder = constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.CATEGORY;
     activePath += subFolder;
     var thumbpath = activePath + constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.Thumb;
-    imageUploadMovingParticularFolder(fileObj, activePath, thumbpath, cb)
-    return;
+    return await imageUploadMovingParticularFolder(fileObj, activePath, thumbpath);    
   }
 }
 
 
 function imageUploadMovingParticularFolder(fileObj, activePath, thumbpath, cb) {
   debug("other.service -> imageUploadMovingParticularFolder");
+  return new Promise(function(resolve,reject){
+
+
   async.series([
     function (cb) {
       // check active path folder is exist or not
@@ -184,11 +186,12 @@ function imageUploadMovingParticularFolder(fileObj, activePath, thumbpath, cb) {
     }
   ], function (error, result) {
     if (error) {
-      cb(error);
+      reject(error);
       return;
     }
-    cb(result);
+    resolve(result);
   }); // async series end
+});
 }
 
 
@@ -262,12 +265,12 @@ var getMediaService = function (request, cb) {
   //     readFileInSync(fullPath, cb);
   //     return;
   //   }
-  // } 
+  // }
   // else if (type.toLowerCase().trim() == constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.Banner.toLowerCase().trim()) {
   //   var fullPath = dirname + constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.Banner + fileName;
   //   readFileInSync(fullPath, cb);
   //   return;
-  // } 
+  // }
   else if (type.toLowerCase().trim() == constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.CATEGORY.toLowerCase().trim()) {
     var fullPath = dirname + constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.CATEGORY + fileName;
     readFileInSync(fullPath, cb);

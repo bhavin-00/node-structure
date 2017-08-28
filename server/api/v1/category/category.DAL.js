@@ -14,11 +14,11 @@ var dbDateFormat = constant.appConfig.DB_DATE_FORMAT;
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var createCategory = function (fieldValue, cb) {
+var createCategory = async function (fieldValue) {
   debug("category.DAL -> createCategory");
   var createCategory = common.cloneObject(query.createCategory);
   createCategory.insert = fieldValue;
-  common.executeQuery(createCategory, cb);
+  return await common.executeQuery(createCategory);
 };
 
 /**
@@ -30,12 +30,12 @@ var createCategory = function (fieldValue, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var updateCategory = function (fieldValue, categoryID, cb) {
+var updateCategory = async function (fieldValue, categoryID) {
   debug("category.DAL -> updateCategory");
   var updateCategory = common.cloneObject(query.updateCategory);
   updateCategory.update = fieldValue;
   updateCategory.filter.value = categoryID;
-  common.executeQuery(updateCategory, cb);
+  return await common.executeQuery(updateCategory);
 };
 
 /**
@@ -47,7 +47,7 @@ var updateCategory = function (fieldValue, categoryID, cb) {
  * @param  {Function} cb               [description]
  * @return {[type]}                    [description]
  */
-var getCategory = function (categoryID, isActive, dbServerDateTime, limit, cb) {
+var getCategory = async function (categoryID, isActive, dbServerDateTime, limit) {
   debug("category.DAL -> getCategory");
   var getCategoryQuery = common.cloneObject(query.getCategoryQuery);
   var categoryFilter = {
@@ -74,7 +74,8 @@ var getCategory = function (categoryID, isActive, dbServerDateTime, limit, cb) {
   }
 
   // getCategoryQuery.limit = limit;
-  common.executeQuery(getCategoryQuery, cb);
+  return await common.executeQuery(getCategoryQuery);
+
 };
 
 
@@ -88,7 +89,7 @@ var getCategory = function (categoryID, isActive, dbServerDateTime, limit, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var checkCategoryIDValid = function (categoryID, cb) {
+var checkCategoryIDValid = async function (categoryID) {
   debug("category.DAL -> checkDeleteCategoryIDValid");
   var checkCateGoryValid = common.cloneObject(query.checkCateGoryValidQuery);
   checkCateGoryValid.filter = {
@@ -98,7 +99,7 @@ var checkCategoryIDValid = function (categoryID, cb) {
       value: categoryID
     }]
   }
-  common.executeQuery(checkCateGoryValid, cb);
+  return await common.executeQuery(checkCateGoryValid);
 };
 
 /**
@@ -109,11 +110,11 @@ var checkCategoryIDValid = function (categoryID, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var removeCategory = function (categoryId, cb) {
+var removeCategory = async function (categoryId) {
   debug("category.DAL -> removeCategory");
   var removeCategoryQuery = common.cloneObject(query.removeCategoryQuery);
   removeCategoryQuery.filter.value = categoryId;
-  common.executeQuery(removeCategoryQuery, cb);
+  return await common.executeQuery(removeCategoryQuery);
 };
 
 /**
@@ -124,7 +125,7 @@ var removeCategory = function (categoryId, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var checkCategoryIsExist = function (category, cb) {
+var checkCategoryIsExist = async function (category) {
   debug("category.DAL -> checkDeleteCategoryIDValid");
   var checkCateGoryValid = common.cloneObject(query.checkCateGoryValidQuery);
   checkCateGoryValid.filter = {
@@ -134,7 +135,7 @@ var checkCategoryIsExist = function (category, cb) {
       value: category
     }]
   }
-  common.executeQuery(checkCateGoryValid, cb);
+  return await common.executeQuery(checkCateGoryValid);
 };
 
 

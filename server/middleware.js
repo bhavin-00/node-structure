@@ -2,8 +2,8 @@ var debug = require('debug')('server:middleware');
 var uuid = require('uuid');
 var randomstring = require("randomstring");
 var constant = require('../server/api/v1/constant');
-var queryExecutor = require('./helper/mySql');
 var config = require('../config');
+var common = require('../server/api/v1/common');
 
 var checkRequestHeader = function(request, response, next) {
   debug("middleware -> checkRequestHeader");
@@ -11,37 +11,24 @@ var checkRequestHeader = function(request, response, next) {
   var udid = request.headers["udid"];
   var device_type = request.headers["device-type"];
   if (api_key === undefined) {
-    return response.send({
-      status: false,
-      error: constant.requestMessages.ERR_API_KEY_NOT_FOUND
-    });
-
+    return common.sendResponse(response,constant.userMessages.ERR_API_KEY_NOT_FOUND,false);
   } else if (api_key != constant.appConfig.APPLICATION_API_KEY) {
-    return response.send({
-      status: false,
-      error: constant.requestMessages.ERR_INVALID_API_KEY
-    });
+    return common.sendResponse(response,constant.userMessages.ERR_INVALID_API_KEY,false);
   } else if (udid === undefined) {
-    return response.send({
-      status: false,
-      error: constant.requestMessages.ERR_UDID_NOT_FOUND
-    });
+    return common.sendResponse(response,constant.userMessages.ERR_UDID_NOT_FOUND,false);
   } else if (device_type === undefined) {
-    return response.send({
-      status: false,
-      error: constant.requestMessages.ERR_DEVICE_TYPE_NOT_FOUND
-    });
+    return common.sendResponse(response,constant.userMessages.ERR_DEVICE_TYPE_NOT_FOUND,false);
   }
   next();
 };
 
-var logger = function(request, response, next) {
+var logger = async function(request, response, next) {
   var fullUrl = request.protocol + '://' + request.get('host') + request.originalUrl;
   var userId = -1;
   if (request.session.userInfo !== undefined) {
     userId = request.session.userInfo.userId;
   }
-  
+
   var type = request.method;
   var headers = JSON.stringify(request.headers);
   var body = JSON.stringify(request.body);
@@ -65,26 +52,20 @@ var logger = function(request, response, next) {
       }
     };
 
-    queryExecutor.executeQuery(jsonQuery, function(result) {
-      if (result.status === false) {
-        return response.send({
-          status: false,
-          error: {
-            code: 9000,
-            message: "Error in executeQuery"
-          }
-        });
-      }else{
-          next();
-      }
-    });
+    try{
+        var result = await common.executeQuery(jsonQuery);
+        next();
+    }
+    catch(ex){
+      return common.sendResponse(response,{code: 9000,message:constant.userMessages.MSG_ERROR_IN_QUERY},false);
+    }
   }else{
     next();
   }
-  
+
 };
 
-var checkAccessToken = function(request, response, next) {
+var checkAccessToken = async function(request, response, next) {
   debug("middleware -> checkAccessToken");
   var accessToken = request.headers["authorization"];
   var udid = request.headers["udid"];
@@ -107,13 +88,7 @@ var checkAccessToken = function(request, response, next) {
   }
   if (accessToken === undefined) {
     response.statusCode = 401;
-    return response.send({
-      status: false,
-      error: {
-        code: 401,
-        message: "Unauthorized access"
-      }
-    });
+    return common.sendResponse(response,{code: 401,message: "Unauthorized access"},false);
   } else {
     var jsonQuery = {
       table: "view_AccessToken",
@@ -159,65 +134,51 @@ var checkAccessToken = function(request, response, next) {
         }]
       }
     };
-    queryExecutor.executeQuery(jsonQuery, function(result) {
-      debug('view_AccessToken Result');
-      if (result.status === false) {
-        return response.send({
-          status: false,
-          error: {
-            code: 9000,
-            message: "Error in executeQuery"
-          }
-        });
-      } else if (result.content.length === 0) {
-        response.statusCode = 401;
-        return response.send({
-          status: false,
-          error: {
-            code: 401,
-            message: "Unauthorized access"
-          }
-        });
-      }
-      if (request.session.userInfo === undefined) {
-        request.session.userInfo = {
-          accessToken: accessToken,
-          userId: result.content[0].user_id,
-          name: result.content[0].name,
-          mobile: result.content[0].mobile,
-          role: result.content[0].role,
-          userTypeID: result.content[0].user_type_id
-        };
-        var userRights = [];
-        for (var i = 0; i < result.content.length; i++) {
-          var objRights = {};
-          objRights.moduleName = result.content[i].module_name;
-          objRights.canView = result.content[i].can_view;
-          objRights.canAddEdit = result.content[i].can_add_edit;
-          objRights.canDelete = result.content[i].can_delete;
-          objRights.adminCreated = result.content[i].admin_created;
-          userRights.push(objRights);
+
+    try{
+        var result = await common.executeQuery(jsonQuery);
+        if (result.content.length === 0) {
+          return common.sendResponse(response,{code: 401,message: "Unauthorized access"},false);
         }
-        request.session.userInfo.userRights = userRights;
-      } else {
-        request.session.userInfo.role = result.content[0].role;
-        request.session.userInfo.userTypeID = result.content[0].user_type_id;
-      }
-      debug("Session: ", request.session.userInfo);
-      next();
-    });
+        if (request.session.userInfo === undefined) {
+          request.session.userInfo = {
+            accessToken: accessToken,
+            userId: result.content[0].user_id,
+            name: result.content[0].name,
+            mobile: result.content[0].mobile,
+            role: result.content[0].role,
+            userTypeID: result.content[0].user_type_id
+          };
+          var userRights = [];
+          for (var i = 0; i < result.content.length; i++) {
+            var objRights = {};
+            objRights.moduleName = result.content[i].module_name;
+            objRights.canView = result.content[i].can_view;
+            objRights.canAddEdit = result.content[i].can_add_edit;
+            objRights.canDelete = result.content[i].can_delete;
+            objRights.adminCreated = result.content[i].admin_created;
+            userRights.push(objRights);
+          }
+          request.session.userInfo.userRights = userRights;
+        } else {
+          request.session.userInfo.role = result.content[0].role;
+          request.session.userInfo.userTypeID = result.content[0].user_type_id;
+        }
+        debug("Session: ", request.session.userInfo);
+        next();
+    }
+    catch(ex){
+      return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+    }
   }
 };
 
 
 var userRightsByAPI = function(request, response, next) {
   var apiURL = request.url.split('/');
-  
+
   if (request.session.userInfo == undefined) {
-    return response.send({
-      status: false,
-      error: constant.userRightsByApiMessage.ERR_USER_INFO
-    });
+    return common.sendResponse(response,constant.userRightsByApiMessage.ERR_USER_INFO,false);
   } else {
     var role = request.session.userInfo.role;
     if (apiURL[1].indexOf('-') < 0) {
@@ -231,16 +192,10 @@ var userRightsByAPI = function(request, response, next) {
         if ((action == "get" && objRight[0].canView == 1) || (action == "addupdate" && objRight[0].canAddEdit == 1) || (action == "remove" && objRight[0].canDelete == 1)) {
           next();
         } else {
-          return response.send({
-            status: false,
-            error: constant.userRightsByApiMessage.ERR_USER_RIGHTS
-          });
+          return common.sendResponse(response,constant.userRightsByApiMessage.ERR_USER_RIGHTS,false);
         }
       } else {
-        return response.send({
-          status: false,
-          error: constant.userRightsByApiMessage.ERR_USER_RIGHTS
-        });
+        return common.sendResponse(response,constant.userRightsByApiMessage.ERR_USER_RIGHTS,false);
       }
 
     }

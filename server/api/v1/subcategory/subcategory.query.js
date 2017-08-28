@@ -36,6 +36,10 @@ var query = {
 
         select: [{
             table: 'A',
+            field: 'pk_categoryId',
+            alias: 'category_id'
+        }, {
+            table: 'A',
             field: 'category',
             alias: 'category_name'
         }, {

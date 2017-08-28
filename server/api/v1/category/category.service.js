@@ -16,15 +16,17 @@ var otherDAL = require('../other/other.DAL');
  * @param {[type]}   request [description]
  * @param {Function} cb      [description]
  */
-var addUpdateCategoryService = function (request, cb) {
+var addUpdateCategoryService = async function (request, response) {
   debug("category.service -> updateCategoryService", request.body);
-  if (request.body.category_name === undefined || request.body.category_id === undefined || request.body.category_id === "" || request.body.category_name === "") {
-    cb({
-      status: false,
-      error: constant.requestMessages.ERR_INVALID_CATEGORY_ADD_REQUEST
-    });
-    return;
+  var isValidObject = common.validateObject([request.body]);
+  var isValid = common.validateParams([request.body.category_name,request.body.category_id,request.body.country_code,request.body.number,request.body.password]);
+  if(!isValidObject){
+    return common.sendResponse(response,constant.requestMessages.ERR_INVALID_CATEGORY_ADD_REQUEST,false);
   }
+  else if(!isValid){
+    return common.sendResponse(response,constant.requestMessages.ERR_INVALID_CATEGORY_ADD_REQUEST,false);
+  }
+
   var categoryID = request.body.category_id;
   var userID = request.session.userInfo.userId;
   var categoryName = request.body.category_name;
@@ -33,26 +35,20 @@ var addUpdateCategoryService = function (request, cb) {
   var image = '';
 
   var fileObj = imageObj;
+
+  try{
   if (fileObj != undefined && Object.keys(fileObj).length > 0) {
 
-    otherService.imageUploadMoving(fileObj, constant.appConfig.MEDIA_MOVING_PATH.CATEGORY, function (result) {
-      if (result.status === false) {
-        cb(result);
-        return;
-      }
-      image = result.data.file;
-      addUpdateCategory(categoryID, userID, categoryName, description, image, request, function (data) {
-        cb(data);
-        return;
-      });
-    });
-  } else {
-    addUpdateCategory(categoryID, userID, categoryName, description, image, request, function (data) {
-      cb(data);
-      return;
-    });
+    var result = await otherService.imageUploadMoving(fileObj, constant.appConfig.MEDIA_MOVING_PATH.CATEGORY);
+    image = result.data.file;
   }
 
+  await addUpdateCategory(categoryID, userID, categoryName, description, image, request,response)
+
+  }
+  catch(ex){
+    return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+  }
 };
 
 /**
@@ -67,7 +63,7 @@ var addUpdateCategoryService = function (request, cb) {
  * @param {[type]}   request          [description]
  * @param {Function} cb               [description]
  */
-function addUpdateCategory(categoryID, userID, categoryName, description, image, request, cb) {
+async function addUpdateCategory(categoryID, userID, categoryName, description, image, request,response) {
   var fullUrl = common.getGetMediaURL(request);
   var categoryinfo = {};
   categoryinfo.fk_createdBy = userID;
@@ -91,67 +87,45 @@ function addUpdateCategory(categoryID, userID, categoryName, description, image,
       fieldValueInsert.push(fieldValueObj);
     }
   });
+  try{
   if (categoryID <= 0) {
     debug("resulted final Add category object -> ", fieldValueInsert);
-    categoryDAL.checkCategoryIsExist(categoryinfo.category, function (result) {
-      if (result.status === true && result.content.length != 0) {
-        cb({
-          status: false,
-          error: constant.categoryMessages.ERR_CATEGORY_EXIST,
-        });
-        return;
-      }
-      if (result.status == true && result.content.length === 0) {
-        categoryDAL.createCategory(fieldValueInsert, function (result) {
-          if (result.status === false) {
-            cb(result);
-          } else {
-            cb({
-              status: true,
-              data: constant.categoryMessages.CATEGORY_ADD_SUCCESS,
-              category_id: result.content.insertId
-            });
-          }
-        });
-      }
+    let result = await categoryDAL.checkCategoryIsExist(categoryinfo.category)
 
-    });
-
+    if (result.status === true && result.content.length != 0) {
+      return common.sendResponse(response, constant.categoryMessages.ERR_CATEGORY_EXIST,false);
+    }
+    if (result.status == true && result.content.length === 0) {
+     let res_create_cat = await categoryDAL.createCategory(fieldValueInsert)
+     return common.sendResponse(response, constant.categoryMessages.CATEGORY_ADD_SUCCESS,true);
+    }
   } else {
     modifiedObj = {
       field: "modifiedDate",
       fValue: d3.timeFormat(dbDateFormat)(new Date())
     }
-    categoryDAL.checkCategoryIDValid(categoryID, function (result) {
-      if (result.status === false) {
-        cb(result);
-        return;
-      }
-      if (result.content.length === 0) {
-        cb({
-          status: false,
-          error: constant.categoryMessages.ERR_REQUESTED_USER_NO_PERMISSION_OF_CATEGORY_UPDATE
-        });
-        return;
-      }
-      if (result.content[0].imageName != "" && result.content[0].imageName != undefined && fieldValueInsert[3].fValue == "")
+
+
+    let result = await categoryDAL.checkCategoryIDValid(categoryID);
+
+
+    if (result.content.length === 0) {
+      return common.sendResponse(response, constant.categoryMessages.ERR_REQUESTED_USER_NO_PERMISSION_OF_CATEGORY_UPDATE,false);
+    }
+    if (result.content[0].imageName != "" && result.content[0].imageName != undefined && fieldValueInsert[3].fValue == "")
         fieldValueInsert[3].fValue = result.content[0].imageName;
 
       fieldValueInsert.push(modifiedObj);
-      debug("resulted final Update category object -> ", fieldValueInsert);
-      categoryDAL.updateCategory(fieldValueInsert, categoryID, function (result) {
-        if (result.status === false) {
-          cb(result);
-        } else {
-          cb({
-            status: true,
-            data: constant.categoryMessages.CATEGORY_UPDATE_SUCCESS
-          });
-        }
-      });
 
-    });
+      debug("resulted final Update category object -> ", fieldValueInsert);
+
+      let res_update_cate = await categoryDAL.updateCategory(fieldValueInsert, categoryID);
+      return common.sendResponse(response, constant.categoryMessages.CATEGORY_UPDATE_SUCCESS,true);
   }
+}
+catch(ex){
+  throw  ex;
+}
 }
 /**
  * Created By: CBT
@@ -161,7 +135,7 @@ function addUpdateCategory(categoryID, userID, categoryName, description, image,
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var getCategoryService = function (request, cb) {
+var getCategoryService = async function (request, response) {
   debug("Category.service -> getCategoryService");
 
   var getPaginationObject = common.getPaginationObject(request);
@@ -176,38 +150,28 @@ var getCategoryService = function (request, cb) {
     if (constant.appConfig.VALID_ACTIVE_STATUS_PARAM.indexOf(request.params.activeStatus) > -1) {
       activeStatus = request.params.activeStatus;
     } else {
-      cb({
-        status: false,
-        error: constant.otherMessage.INVALID_ACTIVE_PARAM
-      });
-      return;
+      return common.sendResponse(response, constant.categoryMessages.INVALID_ACTIVE_PARAM,false);
     }
   }
+  try{
+    let result = await categoryDAL.getCategory(categoryID, activeStatus, dbServerDateTime, limit);
+    var fullUrl = common.getGetMediaURL(request);
 
-  categoryDAL.getCategory(categoryID, activeStatus, dbServerDateTime, limit, function (result) {
-    if (result.status == false) {
-      cb({
-        status: false,
-        error: constant.categoryMessages.ERR_NO_CATEGORY_FOUND
-      });
-      return;
-    } else {
-      var fullUrl = common.getGetMediaURL(request);
-      result.content.forEach(function (category) {
+    result.content.forEach(function (category) {
+      if (category.image_name != undefined && category.image_name != "") {
+        category.image_name = common.getGetMediaURL(request) + constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.CATEGORY + "large/" + category.image_name;
+      } else {
+        category.image_name = common.getNoImageURL(request);
+      }
+    });
+    return common.sendResponse(response, result.content,true);
 
+  }
+  catch(ex){
+    debug(ex);
+    return common.sendResponse(response, constant.categoryMessages.ERR_NO_CATEGORY_FOUND,false);
+  }
 
-        if (category.image_name != undefined && category.image_name != "") {
-          category.image_name = common.getGetMediaURL(request) + constant.appConfig.MEDIA_UPLOAD_SUBFOLDERS_NAME.CATEGORY + "large/" + category.image_name;
-        } else {
-          category.image_name = common.getNoImageURL(request);
-        }
-      });
-      cb({
-        status: true,
-        data: result.content
-      });
-    }
-  });
 };
 
 
@@ -220,43 +184,26 @@ var getCategoryService = function (request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var deleteCategoryService = function (request, cb) {
+var deleteCategoryService = async function (request, response) {
   debug("Category.service -> deleteCategoryService", request.params.categoryID);
 
-  if (request.params.categoryID === undefined) {
-    cb({
-      status: false,
-      error: constant.requestMessages.ERR_INVALID_CATEGORY_DELETE_REQUEST
-    });
-    return;
+  let isValid = common.validateParams([request.params.categoryID])
+  if(!isValid){
+      return common.sendResponse(response,constant.categoryMessages.ERR_INVALID_CATEGORY_DELETE_REQUEST,false);
   } else {
-    var categoryID = request.params.categoryID;
-    // var userID = request.session.userInfo.userId;
+    try{
+        var categoryID = request.params.categoryID;
 
-    categoryDAL.checkCategoryIDValid(categoryID, function (result) {
-      if (result.status === false) {
-        cb(result);
-        return;
-      }
-      if (result.content.length === 0) {
-        cb({
-          status: false,
-          error: constant.categoryMessages.ERR_REQUESTED_USER_NO_PERMISSION_OF_CATEGORY_REMOVE
-        });
-        return;
-      }
-
-      categoryDAL.removeCategory(categoryID, function (result) {
-        if (result.status === false) {
-          cb(result);
-          return
+        let result = await categoryDAL.checkCategoryIDValid(categoryID);
+        if (result.content.length === 0) {
+          return common.sendResponse(response,constant.categoryMessages.ERR_REQUESTED_USER_NO_PERMISSION_OF_CATEGORY_REMOVE,false);
         }
-        cb({
-          status: true,
-          data: constant.categoryMessages.MSG_CATEGORY_REMOVE_SUCCESSFULLY
-        })
-      });
-    });
+        let res_remove_cat = await categoryDAL.removeCategory(categoryID);
+        return common.sendResponse(response,constant.categoryMessages.MSG_CATEGORY_REMOVE_SUCCESSFULLY,true);
+    }
+    catch(ex){
+      return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+    }
   }
 };
 

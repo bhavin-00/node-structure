@@ -21,14 +21,15 @@ var smsConfig = config.smsConfig;
  * @param  {Object} response [description]
  * @return {[type]}          [description]
  */
-var signupService = function (request, cb) {
+var signupService = async function (request, response) {
     debug("user.service -> signupService");
-    if (request.body.name == undefined || request.body.name == "" || request.body.email == undefined || request.body.email == "" || request.body.country_code == undefined || request.body.country_code == "" || request.body.number == undefined || request.body.number == "" || request.body.password == undefined) {
-        cb({
-            status: false,
-            error: constant.requestMessages.ERR_INVALID_SIGNUP_REQUEST
-        });
-        return;
+    var isValidObject = common.validateObject([request.body]);
+    var isValid = common.validateParams([request.body.name,request.body.email,request.body.country_code,request.body.number,request.body.password]);
+    if(!isValidObject){
+      return common.sendResponse(response,constant.requestMessages.ERR_INVALID_SIGNUP_REQUEST,false);
+    }
+    else if(!isValid){
+      return common.sendResponse(response,constant.requestMessages.ERR_INVALID_SIGNUP_REQUEST,false);
     }
 
     var userinfo = {};
@@ -53,38 +54,25 @@ var signupService = function (request, cb) {
         }
     });
 
-    userDAL.checkUserIsExist(userinfo.countryCode, userinfo.mobile,userinfo.email, function (result) {
-        if (result.status === false) {
-            cb(result);
-            return;
-        } else if (result.content.length > 0) {
-            var userInfo = result.content[0];
-            if (userInfo.is_active == false) {
-                cb({
-                    status: false,
-                    error: constant.userMessages.ERR_USER_IS_NOT_ACTIVE
-                });
-            } else if (userInfo.is_verify == true) {
-                cb({
-                    status: false,
-                    error: constant.userMessages.ERR_USER_IS_ALREADY_EXIST
-                });
-            }
-            return;
+try{
+    var result = await userDAL.checkUserIsExist(userinfo.countryCode, userinfo.mobile,userinfo.email);
+    if (result.content.length > 0) {
+        if (result.content[0].is_active == false)
+        {
+          return common.sendResponse(response,constant.userMessages.ERR_USER_IS_NOT_ACTIVE,false);
         }
-        userDAL.createUser(userfieldValueInsert, function (result) {
-            if (result.status === false) {
-                cb(result);
-            } else {
-                cb({
-                    status: true,
-                    data: constant.userMessages.MSG_SIGNUP_SUCCESSFULLY
-                });
-            }
-        });
-    });
-};
+      else if (result.content[0].is_verify == true) {
+        return common.sendResponse(response,constant.userMessages.ERR_USER_IS_ALREADY_EXIST,false);
+      }
+    }
 
+    var res_create_user = await userDAL.createUser(userfieldValueInsert)
+    return common.sendResponse(response,constant.userMessages.MSG_SIGNUP_SUCCESSFULLY,true);
+  }
+  catch(ex){
+    return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+  }
+};
 /**
  * Created By: CBT
  * Updated By: CBT
@@ -95,7 +83,7 @@ var signupService = function (request, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var signinService = function (request, cb) {
+var signinService = async function (request, cb) {
     debug("user.service -> signinService");
     if (request.body.user_name == undefined || request.body.user_name == "" || request.body.password == undefined || request.body.password == "") {
         cb({
@@ -103,6 +91,7 @@ var signinService = function (request, cb) {
             error: constant.requestMessages.ERR_INVALID_SIGNIN_REQUEST
         });
         return;
+
     } else if (request.body.user_name.indexOf("@") > 0 && request.body.user_name.lastIndexOf(".") > request.body.user_name.indexOf("@") + 2 && request.body.user_name.lastIndexOf(".") + 2 <= request.body.user_name.length) {
         var email = request.body.user_name;
     } else if (request.body.user_name.match(/\d+/g) != null && request.body.user_name.match(/\d+/g)[0].length == 10) {
@@ -116,20 +105,8 @@ var signinService = function (request, cb) {
     }
     var countryCode = "+91";
     var password = md5(request.body.password);
-    userDAL.userLogin(countryCode, mobile, password, email, function (result) {
-        if (result.status === false) {
-            cb(result);
-        } else if (result.content.length === 0) {
-            cb({
-                status: false,
-                error: constant.userMessages.ERR_INVALID_MOBILE_AND_PASSWORD
-            });
-        } else {
-            checkAndCreateAccessToken(request, result.content, function (res) {
-                cb(res);
-            });
-        }
-    }); // userLogin end
+    let result = await userDAL.userLogin(countryCode, mobile, password, email, "test");
+
 };
 
 /**
@@ -141,70 +118,49 @@ var signinService = function (request, cb) {
  * @param  {Function} cb       [description]
  * @return {[type]}            [description]
  */
-function checkAndCreateAccessToken(request, userInfo, cb) {
-    var userId = userInfo[0].user_id;
-    var token = uuid.v1();
-    var deviceId = request.headers["udid"];
-    var deviceType = (request.headers["device-type"]).toLowerCase();
-    var expiryDateTime = DateLibrary.getRelativeDate(new Date(), {
-        operationType: "Absolute_DateTime",
-        granularityType: "hours",
-        value: constant.appConfig.MAX_ACCESS_TOKEN_EXPIRY_HOURS
-    });
-    var host = request.hostname;
+async function checkAndCreateAccessToken(request, userInfo) {
+  // return new Promise(function (resolve,reject){
+    try{
+      var userId = userInfo[0].user_id;
+      var token = uuid.v1();
+      var deviceId = request.headers["udid"];
+      var deviceType = (request.headers["device-type"]).toLowerCase();
+      var expiryDateTime = DateLibrary.getRelativeDate(new Date(), {
+          operationType: "Absolute_DateTime",
+          granularityType: "hours",
+          value: constant.appConfig.MAX_ACCESS_TOKEN_EXPIRY_HOURS
+      });
+      var host = request.hostname;
+      let result = await userDAL.exprieAccessToken(userId, deviceId, host);
 
-    userDAL.exprieAccessToken(userId, deviceId, host, function (result) {
-        if (result.status === false) {
-            cb(result);
-        } else {
-            debug('11111111111111111111111111111111111111', userId, token, expiryDateTime, deviceId, host);
-            userDAL.createAccessToken(userId, token, expiryDateTime, deviceId, host, function (result) {
-                debug('222222222222222222222222222222222222222222', result);
-                if (result.status === false) {
-                    cb(result);
-                } else {
-                    userDAL.checkUserTransaction(deviceId, deviceType, function (result) {
-                        if (result.status === false) {
-                            cb(result);
-                        } else if (result.content[0].totalCount > 0) {
-                            var fieldValueUpdate = [];
-                            fieldValueUpdate.push({
-                                field: "isLogedIn",
-                                fValue: 1
-                            });
-                            fieldValueUpdate.push({
-                                field: "lastLoginDatetime",
-                                fValue: d3.timeFormat(dbDateFormat)(new Date())
-                            });
-                            userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate, function (result) {
-                                if (result.status === false) {
-                                    cb(result);
-                                } else {
-                                    cb({
-                                        status: true,
-                                        "access_token": token,
-                                        data: userInfo
-                                    });
-                                }
-                            }); // updateUserTransaction end
-                        } else if (result.content[0].totalCount == 0) {
-                            userDAL.createUserTransaction(deviceId, deviceType, function (result) {
-                                if (result.status === false) {
-                                    cb(result);
-                                } else {
-                                    cb({
-                                        status: true,
-                                        "access_token": token,
-                                        data: userInfo
-                                    });
-                                }
-                            }); // createUserTransaction end
-                        }
-                    }); // checkUserTransaction end
-                }
-            }); // createAccessToken end
-        }
-    }); // exprieAccessToken end
+      let res_access_token = await userDAL.createAccessToken(userId, token, expiryDateTime, deviceId, host);
+
+      let res_user_tran = await userDAL.checkUserTransaction(deviceId, deviceType);
+
+      if (res_user_tran.content[0].totalCount > 0) {
+        var fieldValueUpdate = [];
+        fieldValueUpdate.push({
+            field: "isLogedIn",
+            fValue: 1
+        });
+        fieldValueUpdate.push({
+            field: "lastLoginDatetime",
+            fValue: d3.timeFormat(dbDateFormat)(new Date())
+        });
+        let res_transaction = userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate);
+
+      }
+      else{
+        let res_transaction = userDAL.createUserTransaction(deviceId, deviceType);
+
+      }
+      return {status: true,"access_token": token,data: userInfo};
+    }
+    catch(ex){
+      console.log(" error in checkAndCreateAccessToken");
+      throw ex;
+    }
+  // });
 };
 
 /**
@@ -617,14 +573,16 @@ function verifyOTP(countryCode, mobile, OTP, cb) {
  * @param  {object}   request
  * @param  {Function} cb
  */
-var addUpdateAdminService = function(request, cb) {
+var addUpdateAdminService = async function(request, response) {
   debug("user.service -> addUpdateAdminService");
-  if (request.body.user_id == undefined || request.body.user_id == "" || request.body.name == undefined || request.body.name == "" || request.body.email == undefined || request.body.email == "" || request.body.country_code == undefined || request.body.country_code == "" || request.body.mobile == undefined || request.body.mobile == "" || request.body.password == undefined || request.body.password == ""|| request.body.role_id == undefined || request.body.role_id == "") {
-    cb({
-      status: false,
-      error: constant.requestMessages.ERR_INVALID_ADD_UPDATE_REQUEST_OF_ADMIN_USER
-    });
-    return;
+
+  var isValidObject = common.validateObject([request.body]);
+  var isValid = common.validateParams([request.body.user_id,request.body.name,request.body.email,request.body.country_code,request.body.mobile,request.body.password,request.body.role_id]);
+  if(!isValidObject){
+    return common.sendResponse(response,constant.requestMessages.ERR_INVALID_SIGNUP_REQUEST,false);
+  }
+  else if(!isValid){
+     return common.sendResponse(response,constant.requestMessages.ERR_INVALID_ADD_UPDATE_REQUEST_OF_ADMIN_USER,false);
   }
 
   var userID = request.body.user_id;
@@ -652,54 +610,32 @@ var addUpdateAdminService = function(request, cb) {
     }
   });
 
-
-  userDAL.checkUserIsExist(userinfo.countryCode, userinfo.mobile,userinfo.email, function(result) {
-    if (result.status === false) {
-      cb(result);
-      return;
-    } else if (userID == -1 && result.content.length > 0) {
-      cb({
-        status: false,
-        error: constant.userMessages.ERR_USER_IS_ALREADY_EXIST
-      });
-      return;
+  try{
+    var result = await userDAL.checkUserIsExist(userinfo.countryCode, userinfo.mobile,userinfo.email);
+    if (userID == -1 && result.content.length > 0) {
+      return common.sendResponse(response,constant.userMessages.ERR_USER_IS_ALREADY_EXIST,false);
     }
-    if (userID == -1) {
-      userDAL.createUser(userfieldValueInsert, function(result) {
-        if (result.status === false) {
-          cb(result);
-        } else {
-          cb({
-            status: true,
-            content: constant.userMessages.MSG_ADMIN_SUCESSFULLY_CREATED
-          });
-        }
-      });
-    } else {
-      if (result.content.length > 0 && result.content[0].user_id == userID) {
-        userDAL.updateUserInfoById(userID, userfieldValueInsert, function(result) {
-          if (result.status === false) {
-            cb(result);
-          } else {
-            cb({
-              status: true,
-              content: constant.userMessages.MSG_ADMIN_SUCESSFULLY_UPDATED
-            });
-          }
-        });
-      }else if(result.content.length == 0){
-         cb({
-            status: false,
-            error: constant.userMessages.ERR_USER_NOT_EXIST
-          });
-      } else {
-         cb({
-            status: false,
-            error: constant.userMessages.ERR_USER_IS_ALREADY_EXIST
-          });
+    if (userID == -1){
+      var res_create_user = await userDAL.createUser(userfieldValueInsert)
+      return common.sendResponse(response,constant.userMessages.MSG_ADMIN_SUCESSFULLY_CREATED,true);
+    }
+    else{
+      if(result.content.length == 0){
+        return common.sendResponse(response,constant.userMessages.ERR_USER_NOT_EXIST,false);
+      }
+      else if(result.content.length > 0  && result.content[0].user_id == userID){
+        var res_update_user =  await userDAL.updateUserInfoById(userID, userfieldValueInsert)
+        return common.sendResponse(response,constant.userMessages.MSG_ADMIN_SUCESSFULLY_UPDATED,true);
+      }
+      else{
+        return common.sendResponse(response,constant.userMessages.ERR_USER_IS_ALREADY_EXIST,false);
       }
     }
-  });
+  }
+  catch(ex){
+    return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+  }
+
 }
 /**
  * Created By: CBT
@@ -797,32 +733,76 @@ var removeAdminService = function(request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var signinServiceAdmin = function(request, cb) {
+var signinServiceAdmin = async function(request, response) {
   debug("user.service -> signin service admin");
-  if (request.body.email === undefined || request.body.password === undefined) {
-    cb({
-      status: false,
-      error: constant.requestMessages.ERR_INVALID_SIGNIN_REQUEST
-    });
-    return;
+  let isValidObject = common.validateObject([request.body]);
+  let isValid = common.validateParams([request.body.user_name,request.body.password])
+  if(!isValidObject){
+     return common.sendResponse(response,constant.requestMessages.ERR_INVALID_SIGNIN_REQUEST,false);
   }
+  else if(!isValid){
+      return common.sendResponse(response,constant.requestMessages.ERR_INVALID_SIGNIN_REQUEST,false);
+  }
+  try{
   var email = request.body.email;
   var password = md5(request.body.password);
-  userDAL.userLoginAdmin(email, password, function(result) {
-    if (result.status === false) {
-      cb(result);
-    } else if (result.content.length === 0) {
-      cb({
-        status: false,
-        error: constant.userMessages.ERR_INVALID_EMAIL_AND_PASSWORD
-      });
-    } else {
-      checkAndCreateAccessToken(request, result.content, function(res) {
-        cb(res);
-      });
-    }
 
-  });
+  let result = await userDAL.userLoginAdmin(email, password);
+
+    if (result.status === false) {
+      return common.sendResponse(response,result);
+    } else if (result.content.length === 0) {
+      return common.sendResponse(response,constant.userMessages.ERR_INVALID_EMAIL_AND_PASSWORD,false);
+    } else {
+      let  res_access_token = await checkAndCreateAccessToken(request, result.content)
+
+      if (res_access_token.status === true) {
+          var session = request.session;
+          session.userInfo = {
+              userId: res_access_token.data[0].user_id,
+              name: res_access_token.data[0].name,
+              mobile: res_access_token.data[0].mobile,
+              role: res_access_token.data[0].role,
+              userTypeID: res_access_token.data[0].user_type_id
+          };
+          var userRights = [];
+          for (var i = 0; i < res_access_token.data.length; i++) {
+              var objRights = {};
+              objRights.moduleName = res_access_token.data[i].module_name;
+              objRights.canView = res_access_token.data[i].can_view;
+              objRights.canAddEdit = res_access_token.data[i].can_add_edit;
+              objRights.canDelete = res_access_token.data[i].can_delete;
+              objRights.adminCreated = res_access_token.data[i].admin_created;
+              userRights.push(objRights);
+          }
+          request.session.userInfo.userRights = userRights;
+
+          return common.sendResponse(response,res_access_token);
+      } else {
+          return common.sendResponse(response,res_access_token);
+      }
+
+    }
+}
+catch(ex){
+  return common.sendResponse(response,constant.userMessages.MSG_ERROR_IN_QUERY,false);
+}
+
+  // userDAL.userLoginAdmin(email, password, function(result) {
+  //   if (result.status === false) {
+  //     cb(result);
+  //   } else if (result.content.length === 0) {
+  //     cb({
+  //       status: false,
+  //       error: constant.userMessages.ERR_INVALID_EMAIL_AND_PASSWORD
+  //     });
+  //   } else {
+  //     checkAndCreateAccessToken(request, result.content, function(res) {
+  //       cb(res);
+  //     });
+  //   }
+  //
+  // });
 }
 
 /**
