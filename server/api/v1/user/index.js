@@ -8,7 +8,7 @@ module.exports = router;
 
 router.post('/user-signup', middleware.logger, services.signupService);
 router.post('/user-signin', middleware.logger, controller.signin);
-router.post('/signout', middleware.checkAccessToken, middleware.logger, controller.signout);
+router.post('/signout', middleware.checkAccessToken, middleware.logger, services.signoutService);
 router.post('/user-changepassword', middleware.checkAccessToken, middleware.logger, controller.changePassword);
 router.post('/user-forgotpassword', middleware.logger, controller.forgotPassword);
 router.get('/get-userlist/:user_type', middleware.checkAccessToken,middleware.userRightsByAPI,middleware.logger, services.getUserListService);

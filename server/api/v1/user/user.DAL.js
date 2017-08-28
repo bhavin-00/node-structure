@@ -155,13 +155,13 @@ var checkUserTransaction = async function (deviceId, deviceType) {
  * @param  {Function} cb
  * @return {object}
  */
-var updateUserTransaction = function (deviceId, deviceType, fieldValue) {
+var updateUserTransaction = async function (deviceId, deviceType, fieldValue) {
   debug("user.DAL -> updateUserTransaction");
   var updateUserTransactionQuery = common.cloneObject(query.updateUserTransactionQuery);
   updateUserTransactionQuery.filter.and[0].value = deviceId;
   updateUserTransactionQuery.filter.and[1].value = deviceType;
   updateUserTransactionQuery.update = fieldValue;
-  return common.executeQuery(updateUserTransactionQuery);
+  return await common.executeQuery(updateUserTransactionQuery);
 };
 
 /**

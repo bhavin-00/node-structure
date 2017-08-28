@@ -172,42 +172,68 @@ async function checkAndCreateAccessToken(request, userInfo) {
  * @param  {Function} cb
  * @return {object}
  */
-var signoutService = function(request, cb) {
+// var signoutService = function(request, cb) {
+//     debug("user.service -> signoutService");
+//     var deviceId = request.headers["udid"];
+//     var userId = request.session.userInfo.userId;
+//     var deviceType = request.headers["device-type"];
+//     var host = request.hostname;
+//     userDAL.exprieAccessToken(userId, deviceId, host, function(result) {
+//         request.session.destroy();
+//         if (result.status === false) {
+//             cb({
+//                 status: false,
+//                 error: constant.userMessages.ERR_SIGNOUT_IS_NOT_PROPER
+//             });
+//         } else {
+//             var fieldValueUpdate = [];
+//             fieldValueUpdate.push({
+//                 field: "isLogedIn",
+//                 fValue: "0"
+//             });
+//             userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate, function(result) {
+//                 if (result.status === false) {
+//                     cb({
+//                         status: false,
+//                         error: constant.userMessages.ERR_SIGNOUT_IS_NOT_PROPER
+//                     });
+//                 } else {
+//                     cb({
+//                         status: true,
+//                         data: constant.userMessages.MSG_SIGNOUT_SUCCESSFULLY
+//                     });
+//                 }
+//             });
+//         }
+//     });
+// };
+
+var signoutService = async function(request, response) {
     debug("user.service -> signoutService");
     var deviceId = request.headers["udid"];
     var userId = request.session.userInfo.userId;
     var deviceType = request.headers["device-type"];
     var host = request.hostname;
-    userDAL.exprieAccessToken(userId, deviceId, host, function(result) {
+    try {
+        var result = await userDAL.exprieAccessToken(userId, deviceId, host);
         request.session.destroy();
-        if (result.status === false) {
-            cb({
-                status: false,
-                error: constant.userMessages.ERR_SIGNOUT_IS_NOT_PROPER
-            });
-        } else {
-            var fieldValueUpdate = [];
-            fieldValueUpdate.push({
-                field: "isLogedIn",
-                fValue: "0"
-            });
-            userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate, function(result) {
-                if (result.status === false) {
-                    cb({
-                        status: false,
-                        error: constant.userMessages.ERR_SIGNOUT_IS_NOT_PROPER
-                    });
-                } else {
-                    cb({
-                        status: true,
-                        data: constant.userMessages.MSG_SIGNOUT_SUCCESSFULLY
-                    });
-                }
-            });
-        }
-    });
-};
+        var fieldValueUpdate = [];
+        fieldValueUpdate.push({
+            field: "isLogedIn",
+            fValue: "0"
+        });
 
+        var updateUserTraResult = await userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate);
+        
+        return common.sendResponse(response, constant.userMessages.MSG_SIGNOUT_SUCCESSFULLY, true);
+    }
+    catch (ex) {
+        return common.sendResponse(response, constant.userMessages.ERR_SIGNOUT_IS_NOT_PROPER, false);
+    }
+
+
+
+};
 
 /**
  * Created By: CBT
