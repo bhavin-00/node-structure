@@ -21,4 +21,4 @@ router.delete('/remove-adminuser/:user_id',middleware.checkAccessToken,middlewar
 router.post('/user-signin-admin', services.signinServiceAdmin);
 
 
-router.get('/get-usertype', middleware.checkAccessToken,middleware.userRightsByAPI,middleware.logger, controller.getUserType);
+router.get('/get-usertype', middleware.checkAccessToken,middleware.userRightsByAPI,middleware.logger, services.getUserTypeService);

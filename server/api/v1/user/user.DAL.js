@@ -21,14 +21,14 @@ var dbDateFormat = constant.appConfig.DB_DATE_FORMAT;
  * @param  {Function} cb          [description]
  * @return {[type]}               [description]
  */
-var checkUserIsExist = async function (countryCode, mobile,email) {
+var checkUserIsExist = async function (countryCode, mobile, email) {
   debug("user.DAL -> checkUserIsExist");
   var checkUserIsExistQuery = common.cloneObject(query.checkUserIsExistQuery);
   checkUserIsExistQuery.filter.or[0].and[0].value = countryCode;
   checkUserIsExistQuery.filter.or[0].and[1].value = mobile;
-  if(email!=null){
+  if (email != null) {
     checkUserIsExistQuery.filter.or[1].value = email;
-  }else{
+  } else {
     checkUserIsExistQuery.filter.or[1].value = "";
   }
   return await common.executeQuery(checkUserIsExistQuery);
@@ -244,12 +244,12 @@ var checkUserIdIsValid = function (userID, cb) {
 var getUserByUserType = function (userType, cb) {
   debug("user.DAL -> getUserByUserType");
   var getUserByUserTypeQuery = common.cloneObject(query.getUserByUserTypeQuery);
-  if(userType==-1){
-   getUserByUserTypeQuery.filter.operator = "NOTEQ";
-   getUserByUserTypeQuery.filter.value = userType;
-  }else{
-   getUserByUserTypeQuery.filter.operator = "EQ";
-   getUserByUserTypeQuery.filter.value = userType;
+  if (userType == -1) {
+    getUserByUserTypeQuery.filter.operator = "NOTEQ";
+    getUserByUserTypeQuery.filter.value = userType;
+  } else {
+    getUserByUserTypeQuery.filter.operator = "EQ";
+    getUserByUserTypeQuery.filter.value = userType;
   }
   common.executeQuery(getUserByUserTypeQuery, cb);
 }
@@ -381,32 +381,30 @@ var getUserInfoByCountryCodeAndMobile = function (countryCode, mobile, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var getRole = function(roleId,userTypeId,cb){
+var getRole = function (roleId, userTypeId, cb) {
   debug("user.DAL -> getRole");
   var getRoleQuery = common.cloneObject(query.getRoleQuery);
-  var roleFilter = {and: []}
-  if(roleId > 0)
-  {
+  var roleFilter = { and: [] }
+  if (roleId > 0) {
     roleFilter.and.push({
-      table:"RM",
+      table: "RM",
       field: 'pk_RoleID',
       operator: 'EQ',
       value: roleId
     });
   }
-  if(userTypeId > 0)
-  {
+  if (userTypeId > 0) {
     roleFilter.and.push({
-      table:"RM",
+      table: "RM",
       field: 'fk_userTypeID',
       operator: 'EQ',
       value: userTypeId
     });
   }
-  if(roleId < 0 && userTypeId < 0){
-      delete getRoleQuery.filter
-  }else{
-      getRoleQuery.filter = roleFilter;
+  if (roleId < 0 && userTypeId < 0) {
+    delete getRoleQuery.filter
+  } else {
+    getRoleQuery.filter = roleFilter;
   }
   common.executeQuery(getRoleQuery, cb);
 }
@@ -419,7 +417,7 @@ var getRole = function(roleId,userTypeId,cb){
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var removeUser = function(userID,cb){
+var removeUser = function (userID, cb) {
   debug("user.DAL -> removeUser");
   var removeUserQuery = common.cloneObject(query.removeUserQuery);
   removeUserQuery.filter.value = userID;
@@ -435,12 +433,12 @@ var removeUser = function(userID,cb){
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var userLoginAdmin = async function(email, password) {
-    debug("user.DAL -> userLogin admin");
-    var getUserInfoQueryAdmin = common.cloneObject(query.getUserInfoQueryAdmin);
-    getUserInfoQueryAdmin.filter.and[2].value = email;
-    getUserInfoQueryAdmin.filter.and[3].value = password;
-    return await common.executeQuery(getUserInfoQueryAdmin);
+var userLoginAdmin = async function (email, password) {
+  debug("user.DAL -> userLogin admin");
+  var getUserInfoQueryAdmin = common.cloneObject(query.getUserInfoQueryAdmin);
+  getUserInfoQueryAdmin.filter.and[2].value = email;
+  getUserInfoQueryAdmin.filter.and[3].value = password;
+  return await common.executeQuery(getUserInfoQueryAdmin);
 }
 
 /**
@@ -450,11 +448,19 @@ var userLoginAdmin = async function(email, password) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var getUserType = function(cb){
+
+// var getUserType = function(cb){
+//   debug("user.DAL -> getUserType");
+//   var getuserTypeQuery = common.cloneObject(query.getUserTypeQuery);
+//   common.executeQuery(getuserTypeQuery, cb);
+// }
+
+var getUserType = async function () {
   debug("user.DAL -> getUserType");
   var getuserTypeQuery = common.cloneObject(query.getUserTypeQuery);
-  common.executeQuery(getuserTypeQuery, cb);
+  return await common.executeQuery(getuserTypeQuery);
 }
+
 module.exports = {
   checkUserIsExist: checkUserIsExist,
   createUser: createUser,
@@ -464,18 +470,18 @@ module.exports = {
   checkUserTransaction: checkUserTransaction,
   updateUserTransaction: updateUserTransaction,
   createUserTransaction: createUserTransaction,
-  validateUser:validateUser,
-  updateUserInfoById:updateUserInfoById,
-  checkUserIdIsValid:checkUserIdIsValid,
-  getUserByUserType:getUserByUserType,
-  checkOTPLimit:checkOTPLimit,
-  exprieOTP:exprieOTP,
-  saveOTP:saveOTP,
-  validOTP:validOTP,
-  updateUserInfoByCountryCodeAndMobile:updateUserInfoByCountryCodeAndMobile,
-  getUserInfoByCountryCodeAndMobile:getUserInfoByCountryCodeAndMobile,
-  getRole:getRole,
-  removeUser:removeUser,
-  userLoginAdmin:userLoginAdmin,
-  getUserType:getUserType,
+  validateUser: validateUser,
+  updateUserInfoById: updateUserInfoById,
+  checkUserIdIsValid: checkUserIdIsValid,
+  getUserByUserType: getUserByUserType,
+  checkOTPLimit: checkOTPLimit,
+  exprieOTP: exprieOTP,
+  saveOTP: saveOTP,
+  validOTP: validOTP,
+  updateUserInfoByCountryCodeAndMobile: updateUserInfoByCountryCodeAndMobile,
+  getUserInfoByCountryCodeAndMobile: getUserInfoByCountryCodeAndMobile,
+  getRole: getRole,
+  removeUser: removeUser,
+  userLoginAdmin: userLoginAdmin,
+  getUserType: getUserType,
 }
