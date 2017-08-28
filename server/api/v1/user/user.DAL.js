@@ -241,7 +241,7 @@ var checkUserIdIsValid = function (userID, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var getUserByUserType = function (userType, cb) {
+var getUserByUserType = async function (userType) {
   debug("user.DAL -> getUserByUserType");
   var getUserByUserTypeQuery = common.cloneObject(query.getUserByUserTypeQuery);
   if (userType == -1) {
@@ -251,7 +251,7 @@ var getUserByUserType = function (userType, cb) {
     getUserByUserTypeQuery.filter.operator = "EQ";
     getUserByUserTypeQuery.filter.value = userType;
   }
-  common.executeQuery(getUserByUserTypeQuery, cb);
+  return await common.executeQuery(getUserByUserTypeQuery);
 }
 
 /**
@@ -381,7 +381,36 @@ var getUserInfoByCountryCodeAndMobile = function (countryCode, mobile, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var getRole = function (roleId, userTypeId, cb) {
+
+// var getRole = function (roleId, userTypeId, cb) {
+//   debug("user.DAL -> getRole");
+//   var getRoleQuery = common.cloneObject(query.getRoleQuery);
+//   var roleFilter = { and: [] }
+//   if (roleId > 0) {
+//     roleFilter.and.push({
+//       table: "RM",
+//       field: 'pk_RoleID',
+//       operator: 'EQ',
+//       value: roleId
+//     });
+//   }
+//   if (userTypeId > 0) {
+//     roleFilter.and.push({
+//       table: "RM",
+//       field: 'fk_userTypeID',
+//       operator: 'EQ',
+//       value: userTypeId
+//     });
+//   }
+//   if (roleId < 0 && userTypeId < 0) {
+//     delete getRoleQuery.filter
+//   } else {
+//     getRoleQuery.filter = roleFilter;
+//   }
+//   common.executeQuery(getRoleQuery, cb);
+// }
+
+var getRole = async function (roleId, userTypeId) {
   debug("user.DAL -> getRole");
   var getRoleQuery = common.cloneObject(query.getRoleQuery);
   var roleFilter = { and: [] }
@@ -406,7 +435,8 @@ var getRole = function (roleId, userTypeId, cb) {
   } else {
     getRoleQuery.filter = roleFilter;
   }
-  common.executeQuery(getRoleQuery, cb);
+  // common.executeQuery(getRoleQuery, cb);
+  return await common.executeQuery(getRoleQuery);
 }
 
 /**

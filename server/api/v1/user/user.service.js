@@ -21,7 +21,7 @@ var smsConfig = config.smsConfig;
  * @param  {Object} response [description]
  * @return {[type]}          [description]
  */
-var signupService = async function(request, response) {
+var signupService = async function (request, response) {
     debug("user.service -> signupService");
     var isValidObject = common.validateObject([request.body]);
     var isValid = common.validateParams([request.body.name, request.body.email, request.body.country_code, request.body.number, request.body.password]);
@@ -43,7 +43,7 @@ var signupService = async function(request, response) {
 
     var userKeys = Object.keys(userinfo);
     var userfieldValueInsert = [];
-    userKeys.forEach(function(userKeys) {
+    userKeys.forEach(function (userKeys) {
         if (userinfo[userKeys] !== undefined) {
             var fieldValueObj = {};
             fieldValueObj = {
@@ -82,7 +82,7 @@ var signupService = async function(request, response) {
  * @param  {Function} cb
  * @return {object}
  */
-var signinService = async function(request, cb) {
+var signinService = async function (request, cb) {
     debug("user.service -> signinService");
     if (request.body.user_name == undefined || request.body.user_name == "" || request.body.password == undefined || request.body.password == "") {
         cb({
@@ -172,13 +172,13 @@ async function checkAndCreateAccessToken(request, userInfo) {
  * @param  {Function} cb
  * @return {object}
  */
-var signoutService = function(request, cb) {
+var signoutService = function (request, cb) {
     debug("user.service -> signoutService");
     var deviceId = request.headers["udid"];
     var userId = request.session.userInfo.userId;
     var deviceType = request.headers["device-type"];
     var host = request.hostname;
-    userDAL.exprieAccessToken(userId, deviceId, host, function(result) {
+    userDAL.exprieAccessToken(userId, deviceId, host, function (result) {
         request.session.destroy();
         if (result.status === false) {
             cb({
@@ -191,7 +191,7 @@ var signoutService = function(request, cb) {
                 field: "isLogedIn",
                 fValue: "0"
             });
-            userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate, function(result) {
+            userDAL.updateUserTransaction(deviceId, deviceType, fieldValueUpdate, function (result) {
                 if (result.status === false) {
                     cb({
                         status: false,
@@ -219,7 +219,7 @@ var signoutService = function(request, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var changePasswordService = function(request, cb) {
+var changePasswordService = function (request, cb) {
     debug("user.service -> changePasswordService");
     if (request.body.old_password === undefined || request.body.old_password === "" || request.body.new_password === undefined || request.body.new_password === "" || request.body.retype_password === undefined || request.body.retype_password === "") {
         cb({
@@ -239,7 +239,7 @@ var changePasswordService = function(request, cb) {
     var userId = request.session.userInfo.userId;
     var oldPassword = md5(request.body.old_password);
     var newPassword = md5(request.body.retype_password);
-    userDAL.validateUser(userId, oldPassword, function(result) {
+    userDAL.validateUser(userId, oldPassword, function (result) {
         if (result.status === false) {
             cb(result);
             return;
@@ -255,7 +255,7 @@ var changePasswordService = function(request, cb) {
             field: "password",
             fValue: newPassword
         });
-        userDAL.updateUserInfoById(userId, fieldValueUpdate, function(result) {
+        userDAL.updateUserInfoById(userId, fieldValueUpdate, function (result) {
             if (result.status === false) {
                 cb(result);
             } else {
@@ -279,7 +279,7 @@ var changePasswordService = function(request, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var forgotPasswordService = function(request, cb) {
+var forgotPasswordService = function (request, cb) {
     debug("user.service -> forgotPasswordService");
     if (request.body.user_id === undefined || request.body.user_id == "" || request.body.new_password === undefined || request.body.new_password == "" || request.body.retype_password === undefined || request.body.retype_password == "") {
         cb({
@@ -299,7 +299,7 @@ var forgotPasswordService = function(request, cb) {
     var user_id = request.body.user_id;
     var password = md5(request.body.retype_password);
 
-    userDAL.checkUserIdIsValid(user_id, function(result) {
+    userDAL.checkUserIdIsValid(user_id, function (result) {
         if (result.status === false) {
             cb(result);
         } else if (result.content.length === 0) {
@@ -313,7 +313,7 @@ var forgotPasswordService = function(request, cb) {
                 field: "password",
                 fValue: password
             });
-            userDAL.updateUserInfoById(user_id, fieldValueUpdate, function(result) {
+            userDAL.updateUserInfoById(user_id, fieldValueUpdate, function (result) {
                 if (result.status === false) {
                     cb(result);
                 } else {
@@ -338,25 +338,43 @@ var forgotPasswordService = function(request, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var getUserListService = function(request, cb) {
-    if (request.params.user_type == "" || request.params.user_type == undefined) {
-        cb({
-            status: false,
-            error: constant.requestMessages.ERR_INVALID_REQUEST_GET_USER_LIST
-        })
-        return;
+// var getUserListService = function (request, response) {
+//     if (request.params.user_type == "" || request.params.user_type == undefined) {
+//         cb({
+//             status: false,
+//             error: constant.requestMessages.ERR_INVALID_REQUEST_GET_USER_LIST
+//         })
+//         return;
+//     }
+//     var userType = request.params.user_type;
+//     userDAL.getUserByUserType(userType, function (result) {
+//         if (result.status == false) {
+//             cb({
+//                 status: false,
+//                 error: constant.requestMessages.ERR_UNABLE_TO_GET_USER_LIST
+//             })
+//             return;
+//         }
+//         cb({ status: true, data: result.content });
+//     })
+// }
+var getUserListService = async function (request, response) {
+    let isValid = common.validateParams([request.params.user_type]);
+
+    if (!isValid) {
+        return common.sendResponse(response, constant.userMessages.ERR_INVALID_GET_ROLE_REQUEST, false);
     }
-    var userType = request.params.user_type;
-    userDAL.getUserByUserType(userType, function(result) {
-        if (result.status == false) {
-            cb({
-                status: false,
-                error: constant.requestMessages.ERR_UNABLE_TO_GET_USER_LIST
-            })
-            return;
-        }
-        cb({ status: true, data: result.content });
-    })
+
+    try {
+        var userType = request.params.user_type;
+
+        let result = await userDAL.getUserByUserType(userType);
+        return common.sendResponse(response, result.content, true);
+    }
+    catch (ex) {
+        debug(ex);
+        return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
+    }
 }
 
 
@@ -368,7 +386,7 @@ var getUserListService = function(request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var sendOTPService = function(request, cb) {
+var sendOTPService = function (request, cb) {
     debug("user.service -> sendOTPService");
     if (request.body.mobile === undefined || request.body.mobile == "" || request.body.country_code === undefined || request.body.country_code == "") {
         cb({
@@ -379,7 +397,7 @@ var sendOTPService = function(request, cb) {
     }
     var mobile = request.body.mobile;
     var countryCode = request.body.country_code;
-    userDAL.checkUserIsExist(countryCode, mobile, null, function(result) {
+    userDAL.checkUserIsExist(countryCode, mobile, null, function (result) {
         if (result.status === false) {
             cb(result);
         } else if (result.content.length === 0) {
@@ -405,7 +423,7 @@ var sendOTPService = function(request, cb) {
  */
 function sendOTP(countryCode, mobile, cb) {
     debug("user.service -> sendOTP");
-    userDAL.checkOTPLimit(countryCode, mobile, function(result) {
+    userDAL.checkOTPLimit(countryCode, mobile, function (result) {
         if (result.status === false) {
             cb(result);
             return;
@@ -416,7 +434,7 @@ function sendOTP(countryCode, mobile, cb) {
             });
             return;
         }
-        userDAL.exprieOTP(countryCode, mobile, function(result) {
+        userDAL.exprieOTP(countryCode, mobile, function (result) {
             if (result.status === false) {
                 cb(result);
                 return;
@@ -427,7 +445,7 @@ function sendOTP(countryCode, mobile, cb) {
                 granularityType: "Seconds",
                 value: constant.appConfig.MAX_OTP_EXPIRY_SECONDS
             });
-            userDAL.saveOTP(countryCode, mobile, OTP, expiryDateTime, function(result) {
+            userDAL.saveOTP(countryCode, mobile, OTP, expiryDateTime, function (result) {
                 if (result.status === false) {
                     cb(result);
                     return;
@@ -443,7 +461,7 @@ function sendOTP(countryCode, mobile, cb) {
                             otp: OTP
                             // url: 'http://cricheroes.in'
                         }
-                        sendSMSObj.sendSMS(countryCodeMobile, 'PM', data, function(resultSMS) {
+                        sendSMSObj.sendSMS(countryCodeMobile, 'PM', data, function (resultSMS) {
                             debug('send sms result', resultSMS);
                         });
                     }
@@ -466,7 +484,7 @@ function sendOTP(countryCode, mobile, cb) {
  * @param  {Function} cb
  * @return {object}
  */
-var verifyOTPService = function(request, cb) {
+var verifyOTPService = function (request, cb) {
     debug("user.service -> verifyOTPService");
     if (request.body.mobile === undefined || request.body.country_code === undefined || request.body.otp === undefined) {
         cb({
@@ -498,7 +516,7 @@ var verifyOTPService = function(request, cb) {
 function verifyOTP(countryCode, mobile, OTP, cb) {
     debug("user.service -> verifyOTP");
     var currDateTime = new Date();
-    userDAL.validOTP(countryCode, mobile, currDateTime, function(result) {
+    userDAL.validOTP(countryCode, mobile, currDateTime, function (result) {
         if (result.status === false) {
             cb(result);
             return;
@@ -532,18 +550,18 @@ function verifyOTP(countryCode, mobile, OTP, cb) {
                 fValue: 1
             }];
 
-            userDAL.updateUserInfoByCountryCodeAndMobile(countryCode, mobile, filedValueUpdate, function(result) {
+            userDAL.updateUserInfoByCountryCodeAndMobile(countryCode, mobile, filedValueUpdate, function (result) {
                 if (result.status === false) {
                     cb(result);
                     return;
                 }
-                userDAL.exprieOTP(countryCode, mobile, function(result) {
+                userDAL.exprieOTP(countryCode, mobile, function (result) {
                     if (result.status === false) {
                         cb(result);
                         return;
                     }
                     // Get UserINFO
-                    userDAL.getUserInfoByCountryCodeAndMobile(countryCode, mobile, function(result) {
+                    userDAL.getUserInfoByCountryCodeAndMobile(countryCode, mobile, function (result) {
                         if (result.status === false) {
                             cb(result);
                         } else if (result.content.length === 0) {
@@ -572,7 +590,7 @@ function verifyOTP(countryCode, mobile, OTP, cb) {
  * @param  {object}   request
  * @param  {Function} cb
  */
-var addUpdateAdminService = async function(request, response) {
+var addUpdateAdminService = async function (request, response) {
     debug("user.service -> addUpdateAdminService");
 
     var isValidObject = common.validateObject([request.body]);
@@ -598,7 +616,7 @@ var addUpdateAdminService = async function(request, response) {
 
     var userKeys = Object.keys(userinfo);
     var userfieldValueInsert = [];
-    userKeys.forEach(function(userKeys) {
+    userKeys.forEach(function (userKeys) {
         if (userinfo[userKeys] !== undefined) {
             var fieldValueObj = {};
             fieldValueObj = {
@@ -643,22 +661,35 @@ var addUpdateAdminService = async function(request, response) {
  * @param  {object}   request
  * @param  {Function} cb
  */
-var getAdminService = function(request, cb) {
+// var getAdminService = function (request, cb) {
+//     debug("user.service -> getAdminService");
+//     userDAL.getUserByUserType(constant.userType.admin, function (result) {
+//         if (result.status == false) {
+//             cb({
+//                 status: false,
+//                 error: result.error
+//             });
+//             return;
+//         }
+//         cb({
+//             status: true,
+//             data: result.content
+//         })
+//     })
+// }
+
+var getAdminService = async function (request, response) {
     debug("user.service -> getAdminService");
-    userDAL.getUserByUserType(constant.userType.admin, function(result) {
-        if (result.status == false) {
-            cb({
-                status: false,
-                error: result.error
-            });
-            return;
-        }
-        cb({
-            status: true,
-            data: result.content
-        })
-    })
+    try {
+        var result = await userDAL.getUserByUserType(constant.userType.admin);
+        return common.sendResponse(response, result.content, true);
+    }
+    catch (ex) {
+        debug(ex);
+        return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
+    }
 }
+
 
 /**
  * Created By: CBT
@@ -668,27 +699,49 @@ var getAdminService = function(request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var getRoleService = function(request, cb) {
+
+// var getRoleService = function (request, cb) {
+//     debug("user.service -> getRoleService");
+//     if (request.params.role_id === undefined || request.params.user_type_id === undefined || request.params.role_id === 0 || request.params.user_type_id === 0) {
+//         cb({
+//             status: false,
+//             error: constant.userMessages.ERR_INVALID_GET_ROLE_REQUEST
+//         });
+//         return;
+//     } else {
+//         var roleID = request.params.role_id;
+//         var userTypeID = request.params.user_type_id;
+//         userDAL.getRole(roleID, userTypeID, function (result) {
+//             if (result.status === false) {
+//                 cb(result);
+//                 return
+//             }
+//             cb({
+//                 status: true,
+//                 data: result.content
+//             })
+//         });
+//     }
+// }
+
+var getRoleService = async function (request, response) {
     debug("user.service -> getRoleService");
-    if (request.params.role_id === undefined || request.params.user_type_id === undefined || request.params.role_id === 0 || request.params.user_type_id === 0) {
-        cb({
-            status: false,
-            error: constant.userMessages.ERR_INVALID_GET_ROLE_REQUEST
-        });
-        return;
-    } else {
+    let isValid = common.validateParams([request.params.role_id, request.params.user_type_id]);
+
+    if (!isValid) {
+        return common.sendResponse(response, constant.userMessages.ERR_INVALID_GET_ROLE_REQUEST, false);
+    }
+
+    try {
         var roleID = request.params.role_id;
         var userTypeID = request.params.user_type_id;
-        userDAL.getRole(roleID, userTypeID, function(result) {
-            if (result.status === false) {
-                cb(result);
-                return
-            }
-            cb({
-                status: true,
-                data: result.content
-            })
-        });
+
+        let result = await userDAL.getRole(roleID, userTypeID);
+        return common.sendResponse(response, result.content, true);
+    }
+    catch (ex) {
+        debug(ex);
+        return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
     }
 }
 
@@ -700,7 +753,7 @@ var getRoleService = function(request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var removeAdminService = function(request, cb) {
+var removeAdminService = function (request, cb) {
     debug("user.service -> removeAdminService");
 
     if (request.params.user_id === undefined) {
@@ -711,7 +764,7 @@ var removeAdminService = function(request, cb) {
         return;
     } else {
         var userID = request.params.user_id;
-        userDAL.removeUser(userID, function(result) {
+        userDAL.removeUser(userID, function (result) {
             if (result.status === false) {
                 cb(result);
                 return
@@ -732,7 +785,7 @@ var removeAdminService = function(request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var signinServiceAdmin = async function(request, response) {
+var signinServiceAdmin = async function (request, response) {
     debug("user.service -> signin service admin");
     let isValidObject = common.validateObject([request.body]);
     let isValid = common.validateParams([request.body.user_name, request.body.password])
@@ -827,7 +880,7 @@ var signinServiceAdmin = async function(request, response) {
 //   });
 // }
 
-var getUserTypeService = async function(request, response) {
+var getUserTypeService = async function (request, response) {
     debug("user.service -> getUserTypeService");
     try {
         let result = await userDAL.getUserType();
