@@ -17,7 +17,7 @@ router.post('/user-verifyotp', middleware.logger, controller.verifyOTP);
 router.post('/addupdate-adminuser',middleware.checkAccessToken,middleware.userRightsByAPI,middleware.logger, services.addUpdateAdminService);
 router.get('/get-adminuser', middleware.checkAccessToken,middleware.userRightsByAPI,middleware.logger, services.getAdminService);
 router.get('/get-userrole/:role_id/:user_type_id',middleware.checkAccessToken,middleware.userRightsByAPI, middleware.logger, services.getRoleService);
-router.delete('/remove-adminuser/:user_id',middleware.checkAccessToken,middleware.userRightsByAPI, middleware.logger, controller.removeAdmin);
+router.delete('/remove-adminuser/:user_id',middleware.checkAccessToken,middleware.userRightsByAPI, middleware.logger, services.removeAdminService);
 router.post('/user-signin-admin', services.signinServiceAdmin);
 
 

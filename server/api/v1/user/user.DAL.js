@@ -225,11 +225,11 @@ var updateUserInfoById = async function (userId, fieldValue) {
  * @param  {Function} cb     [description]
  * @return {[type]}          [description]
  */
-var checkUserIdIsValid = function (userID, cb) {
+var checkUserIdIsValid = async function (userID) {
   debug("user.DAL -> checkUserIdIsValid");
   var checkUserIdIsValidQuery = common.cloneObject(query.checkUserIdIsValidQuery);
   checkUserIdIsValidQuery.filter.value = userID;
-  common.executeQuery(checkUserIdIsValidQuery, cb);
+  return await common.executeQuery(checkUserIdIsValidQuery);
 }
 
 
@@ -447,11 +447,11 @@ var getRole = async function (roleId, userTypeId) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var removeUser = function (userID, cb) {
+var removeUser = async function (userID) {
   debug("user.DAL -> removeUser");
-  var removeUserQuery = common.cloneObject(query.removeUserQuery);
+  let removeUserQuery = common.cloneObject(query.removeUserQuery);
   removeUserQuery.filter.value = userID;
-  common.executeQuery(removeUserQuery, cb);
+  return await common.executeQuery(removeUserQuery);
 }
 
 /**
