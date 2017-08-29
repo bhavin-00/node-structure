@@ -6,11 +6,6 @@ var constant = require('../constant');
 var query = require('./user.query');
 var dbDateFormat = constant.appConfig.DB_DATE_FORMAT;
 
-
-
-
-
-
 /**
  * Created By: CBT
  * Updated By: CBT
@@ -63,7 +58,7 @@ var createUser = async function (fieldValue) {
  * @param  {Function} cb
  * @return {object}
  */
-var userLogin = function (countryCode, mobile, password, email, cb) {
+var userLogin = async function (countryCode, mobile, password, email) {
   debug("user.DAL -> userLogin");
   var getUserInfoQuery = common.cloneObject(query.getUserInfoQuery);
   if (countryCode != "" && mobile != "" && mobile != undefined) {
@@ -75,7 +70,7 @@ var userLogin = function (countryCode, mobile, password, email, cb) {
     getUserInfoQuery.filter.and[1].or[3].and[0].value = email;
     getUserInfoQuery.filter.and[1].or[3].and[1].value = password;
   }
-  common.executeQuery(getUserInfoQuery, cb);
+  return await common.executeQuery(getUserInfoQuery);
 };
 
 /**
@@ -192,12 +187,12 @@ var createUserTransaction = function (deviceId, deviceType) {
  * @param  {Function} cb       [description]
  * @return {[type]}            [description]
  */
-var validateUser = function (userId, password, cb) {
+var validateUser = async function (userId, password) {
   debug("user.DAL -> checkUserIsExist");
   var validateUserQuery = common.cloneObject(query.validateUserQuery);
   validateUserQuery.filter.and[0].value = userId;
   validateUserQuery.filter.and[1].value = password;
-  common.executeQuery(validateUserQuery, cb);
+  return await common.executeQuery(validateUserQuery);
 };
 
 /**
@@ -263,7 +258,7 @@ var getUserByUserType = async function (userType) {
  * @param  {Function} cb          [description]
  * @return {[type]}               [description]
  */
-var checkOTPLimit = function (countryCode, mobile, cb) {
+var checkOTPLimit = async function (countryCode, mobile) {
   debug("user.DAL -> checkOTPLimit");
   var checkOTPLimitQuery = common.cloneObject(query.checkOTPLimitQuery);
   var currDate = new Date();
@@ -279,7 +274,7 @@ var checkOTPLimit = function (countryCode, mobile, cb) {
   checkOTPLimitQuery.filter.and[1].value = mobile;
   checkOTPLimitQuery.filter.and[2].value = startDate;
   checkOTPLimitQuery.filter.and[3].value = endDate;
-  common.executeQuery(checkOTPLimitQuery, cb);
+  return await common.executeQuery(checkOTPLimitQuery);
 };
 
 
@@ -292,12 +287,12 @@ var checkOTPLimit = function (countryCode, mobile, cb) {
  * @param  {Function} cb          [description]
  * @return {[type]}               [description]
  */
-var exprieOTP = function (countryCode, mobile, cb) {
+var exprieOTP = async function (countryCode, mobile) {
   debug("user.DAL -> exprieOTP");
   var updateOTPQuery = common.cloneObject(query.updateOTPQuery);
   updateOTPQuery.filter.and[0].value = countryCode;
   updateOTPQuery.filter.and[1].value = mobile;
-  common.executeQuery(updateOTPQuery, cb);
+  return await common.executeQuery(updateOTPQuery);
 };
 
 
@@ -312,12 +307,12 @@ var exprieOTP = function (countryCode, mobile, cb) {
  * @param  {Function} cb             [description]
  * @return {[type]}                  [description]
  */
-var saveOTP = function (countryCode, mobile, OTP, expiryDateTime, cb) {
+var saveOTP = async function (countryCode, mobile, OTP, expiryDateTime) {
   debug("user.DAL -> saveOTP");
   var saveOTPQuery = common.cloneObject(query.saveOTPQuery);
   var dbExpiryDateTime = d3.timeFormat(dbDateFormat)(new Date(expiryDateTime));
   saveOTPQuery.insert.fValue = [countryCode, mobile, OTP, dbExpiryDateTime];
-  common.executeQuery(saveOTPQuery, cb);
+  return await common.executeQuery(saveOTPQuery);
 };
 
 /**
@@ -330,13 +325,13 @@ var saveOTP = function (countryCode, mobile, OTP, expiryDateTime, cb) {
  * @param  {Function} cb             [description]
  * @return {[type]}                  [description]
  */
-var validOTP = function (countryCode, mobile, currDateTime, cb) {
+var validOTP = async function (countryCode, mobile, currDateTime) {
   debug("user.DAL -> validOTP");
   var verifyOTPQuery = common.cloneObject(query.verifyOTPQuery);
   verifyOTPQuery.filter.and[0].value = countryCode;
   verifyOTPQuery.filter.and[1].value = mobile;
   verifyOTPQuery.filter.and[2].value = d3.timeFormat(dbDateFormat)(currDateTime);
-  common.executeQuery(verifyOTPQuery, cb);
+  return await common.executeQuery(verifyOTPQuery);
 };
 /**
  * Created By: CBT
@@ -347,13 +342,13 @@ var validOTP = function (countryCode, mobile, currDateTime, cb) {
  * @param  {Function} cb             [description]
  * @return {[type]}                  [description]
  */
-var updateUserInfoByCountryCodeAndMobile = function (countryCode, mobile, fieldValue, cb) {
+var updateUserInfoByCountryCodeAndMobile = async function (countryCode, mobile, fieldValue) {
   debug("user.DAL -> updateUserInfoByCountryCodeAndMobile");
   var updateUserQuery = common.cloneObject(query.updateUserQuery);
   updateUserQuery.filter.or[0].and[0].value = countryCode;
   updateUserQuery.filter.or[0].and[1].value = mobile;
   updateUserQuery.update = fieldValue;
-  common.executeQuery(updateUserQuery, cb);
+  return await common.executeQuery(updateUserQuery);
 };
 /**
  * Created By: CBT
@@ -364,12 +359,12 @@ var updateUserInfoByCountryCodeAndMobile = function (countryCode, mobile, fieldV
  * @param  {Function} cb             [description]
  * @return {[type]}                  [description]
  */
-var getUserInfoByCountryCodeAndMobile = function (countryCode, mobile, cb) {
+var getUserInfoByCountryCodeAndMobile = async function (countryCode, mobile) {
   debug("user.DAL -> getUserInfoByCountryCodeAndMobile");
   var getUserInfoQuery = common.cloneObject(query.getUserInfoQuery);
   getUserInfoQuery.filter.and[1].or[0].and[0].value = countryCode;
   getUserInfoQuery.filter.and[1].or[0].and[1].value = mobile;
-  common.executeQuery(getUserInfoQuery, cb);
+  return await common.executeQuery(getUserInfoQuery);
 };
 
 
@@ -381,34 +376,6 @@ var getUserInfoByCountryCodeAndMobile = function (countryCode, mobile, cb) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-
-// var getRole = function (roleId, userTypeId, cb) {
-//   debug("user.DAL -> getRole");
-//   var getRoleQuery = common.cloneObject(query.getRoleQuery);
-//   var roleFilter = { and: [] }
-//   if (roleId > 0) {
-//     roleFilter.and.push({
-//       table: "RM",
-//       field: 'pk_RoleID',
-//       operator: 'EQ',
-//       value: roleId
-//     });
-//   }
-//   if (userTypeId > 0) {
-//     roleFilter.and.push({
-//       table: "RM",
-//       field: 'fk_userTypeID',
-//       operator: 'EQ',
-//       value: userTypeId
-//     });
-//   }
-//   if (roleId < 0 && userTypeId < 0) {
-//     delete getRoleQuery.filter
-//   } else {
-//     getRoleQuery.filter = roleFilter;
-//   }
-//   common.executeQuery(getRoleQuery, cb);
-// }
 
 var getRole = async function (roleId, userTypeId) {
   debug("user.DAL -> getRole");
@@ -435,7 +402,6 @@ var getRole = async function (roleId, userTypeId) {
   } else {
     getRoleQuery.filter = roleFilter;
   }
-  // common.executeQuery(getRoleQuery, cb);
   return await common.executeQuery(getRoleQuery);
 }
 
@@ -478,12 +444,6 @@ var userLoginAdmin = async function (email, password) {
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-
-// var getUserType = function(cb){
-//   debug("user.DAL -> getUserType");
-//   var getuserTypeQuery = common.cloneObject(query.getUserTypeQuery);
-//   common.executeQuery(getuserTypeQuery, cb);
-// }
 
 var getUserType = async function () {
   debug("user.DAL -> getUserType");
