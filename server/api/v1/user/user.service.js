@@ -120,7 +120,7 @@ var signinService = async function (request, response) {
         }
         request.session.userInfo.userRights = userRights;
 
-        // return common.sendResponse(response, result.data[0], true)
+        //  return common.sendResponse(response, {access_token: result.access_token,data: result.data[0]}, true)
         return response.send({
             status: result.status,
             access_token: result.access_token,
@@ -359,7 +359,8 @@ var sendOTPService = async function (request, response) {
         let result = await userDAL.checkUserIsExist(countryCode, mobile, null);
         if (result.content.length === 0)
             return common.sendResponse(response, constant.userMessages.ERR_USER_NOT_EXIST, false);
-        return await sendOTP(countryCode, mobile);
+        var resultSendOtp = await sendOTP(countryCode, mobile);
+        return common.sendResponse(response, resultSendOtp);
     }
     catch (ex) {
         debug(ex);
@@ -383,7 +384,7 @@ async function sendOTP(countryCode, mobile) {
     try {
         var result = await userDAL.checkOTPLimit(countryCode, mobile);
         if (result.content.length > 0 && result.content[0].totalCount >= constant.appConfig.MAX_OTP_SEND_LIMIT)
-            return common.sendResponse(response, constant.userMessages.ERR_OTP_LIMIT_EXCEEDED, false);
+            return { error: constant.userMessages.ERR_OTP_LIMIT_EXCEEDED, status: false };
 
         let resultExpireOtp = await userDAL.exprieOTP(countryCode, mobile);
 
@@ -411,7 +412,7 @@ async function sendOTP(countryCode, mobile) {
                 debug('send sms result', resultSMS);
             });
 
-            return common.sendResponse(response, OTP_SENT_MSG_OBJ, true);
+            return { data: OTP_SENT_MSG_OBJ, status: true };
         }
     }
     catch (ex) {
@@ -444,7 +445,8 @@ var verifyOTPService = async function (request, response) {
     var countryCode = request.body.country_code;
     var OTP = request.body.otp;
     try {
-        return await verifyOTP(countryCode, mobile, OTP);
+        let result = await verifyOTP(countryCode, mobile, OTP);
+        return common.sendResponse(response, result);
     }
     catch (ex) {
         debug(ex);
@@ -473,16 +475,16 @@ async function verifyOTP(countryCode, mobile, OTP) {
         let result = userDAL.validOTP(countryCode, mobile, currDateTime);
         if (result.content.length === 0)
             // OTP is Expire
-            return common.sendResponse(response, constant.userMessages.ERR_OTP_IS_EXPIRED, false);
+            return { error: constant.userMessages.ERR_OTP_IS_EXPIRED, status: false };
 
         var OTPobj = result.content[0];
         if (OTPobj.otp != OTP)
             // Invalid OTP
-            return common.sendResponse(response, constant.userMessages.ERR_OTP_INVALID, false);
+            return { error: constant.userMessages.ERR_OTP_INVALID, status: false };
 
         if (OTPobj.otp == OTP && new Date(OTPobj.expiry_datetime).getTime() < currDateTime.getTime())
             // OTP is Expire
-            return common.sendResponse(response, constant.userMessages.ERR_OTP_IS_EXPIRED, false);
+            return { error: constant.userMessages.ERR_OTP_IS_EXPIRED, status: false };
 
         var filedValueUpdate = [{
             field: 'isVerified',
@@ -496,9 +498,9 @@ async function verifyOTP(countryCode, mobile, OTP) {
         // Get UserINFO
         let resultGetUserInfo = await userDAL.getUserInfoByCountryCodeAndMobile(countryCode, mobile);
         if (result.content.length === 0)
-            return common.sendResponse(response, constant.userMessages.ERR_USER_NOT_EXIST, false);
+            return { error: constant.userMessages.ERR_USER_NOT_EXIST, status: false };
 
-        return common.sendResponse(response, result.content[0], true);
+        return { data: result.content[0], status: true };
 
     }
     catch (ex) {
