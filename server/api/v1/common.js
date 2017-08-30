@@ -5,19 +5,19 @@ var dbDateFormat = constant.appConfig.DB_DATE_FORMAT;
 var pageSize = constant.appConfig.PAGE_SIZE;
 var d3 = require("d3");
 
-module.exports.cloneObject = function(obejct) {
+module.exports.cloneObject = function (obejct) {
   return JSON.parse(JSON.stringify(obejct));
 };
 
 
 
-module.exports.executeQuery = async function(jsonQuery,cb) {
-// try{
+module.exports.executeQuery = async function (jsonQuery, cb) {
+  // try{
 
-  if(cb){
-    await queryExecutor.executeQuery(jsonQuery,cb);
+  if (cb) {
+    await queryExecutor.executeQuery(jsonQuery, cb);
   }
-  else{
+  else {
     return await queryExecutor.executeQuery(jsonQuery);
   }
 
@@ -25,9 +25,9 @@ module.exports.executeQuery = async function(jsonQuery,cb) {
   // console.log(result);
   //return result;
 
-// }
-// catch(ex){
-//   console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+  // }
+  // catch(ex){
+  //   console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
   // if (result.status === false && result.error.code === 10001) {
   //   let err = {
   //     status: false,
@@ -46,48 +46,50 @@ module.exports.executeQuery = async function(jsonQuery,cb) {
   //   };
   // }
   // throw err;
-// }
+  // }
 };
 
-// module.exports.executeQueryWithTransactions = function(jsonQueryJSONArray, cb) {
-//   queryExecutor.executeQueryWithTransactions(jsonQueryJSONArray, function(result) {
-//     if (result.status === false && result.error.code === 10001) {
-//       cb({
-//         status: false,
-//         error: {
-//           code: 9001,
-//           message: "Error dublicate entry"
-//         }
-//       });
-//       return;
-//     } else if (result.status === false) {
-//       cb({
-//         status: false,
-//         error: {
-//           code: 9000,
-//           message: "Error in executeQuery"
-//         }
-//       });
-//       return;
-//     }
-//     cb(result);
-//   });
-// };
+module.exports.executeQueryWithTransactions = async function (jsonQueryJSONArray) {
+  return await queryExecutor.executeQueryWithTransactions(jsonQueryJSONArray);
+
+  // queryExecutor.executeQueryWithTransactions(jsonQueryJSONArray, function(result) {
+  //   if (result.status === false && result.error.code === 10001) {
+  //     cb({
+  //       status: false,
+  //       error: {
+  //         code: 9001,
+  //         message: "Error dublicate entry"
+  //       }
+  //     });
+  //     return;
+  //   } else if (result.status === false) {
+  //     cb({
+  //       status: false,
+  //       error: {
+  //         code: 9000,
+  //         message: "Error in executeQuery"
+  //       }
+  //     });
+  //     return;
+  //   }
+  //   cb(result);
+  // });
+};
 
 
-module.exports.getGetMediaURL = function(request) {
+module.exports.getGetMediaURL = function (request) {
   debug("common -> getGetMediaURL");
   var fullUrl = request.protocol + '://' + request.get('host') + constant.appConfig.MEDIA_GET_STATIC_URL;
   return fullUrl;
 };
 
-module.exports.getNoImageURL = function(request) {
+module.exports.getNoImageURL = function (request) {
   debug("common -> getGetMediaURL");
   var fullUrl = request.protocol + '://' + request.get('host') + constant.appConfig.MEDIA_DEFAULT_IMAGES_PATH + "noimage.jpg";
   return fullUrl;
 };
 
-module.exports.getPaginationObject = function(request) {
+module.exports.getPaginationObject = function (request) {
   var paginationObj = {};
   var serverDateTime;
   var pageNo;
@@ -105,32 +107,32 @@ module.exports.getPaginationObject = function(request) {
   return paginationObj;
 };
 
-module.exports.sendResponse = function(response,obj,isSuccess) {
-  if(isSuccess != undefined ){
-    if(isSuccess == true){
-       response.send({status:true,data:obj});
+module.exports.sendResponse = function (response, obj, isSuccess) {
+  if (isSuccess != undefined) {
+    if (isSuccess == true) {
+      response.send({ status: true, data: obj });
     }
-    else{
-       response.send({status:false,error:obj});
+    else {
+      response.send({ status: false, error: obj });
     }
   }
-  else{
-     response.send(obj);
+  else {
+    response.send(obj);
   }
 }
 
-module.exports.validateObject = function(arrParam) {
-  arrParam.forEach(function(param){
-    if(param == undefined && typeof param != "object"){
+module.exports.validateObject = function (arrParam) {
+  arrParam.forEach(function (param) {
+    if (param == undefined && typeof param != "object") {
       return false;
     }
   });
   return true;
 }
 
-module.exports.validateParams = function(arrParam) {
-  arrParam.forEach(function(param){
-    if (param == undefined && param == ""){
+module.exports.validateParams = function (arrParam) {
+  arrParam.forEach(function (param) {
+    if (param == undefined && param == "") {
       return false;
     }
   });

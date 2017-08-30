@@ -15,7 +15,7 @@ var d3 = require("d3");
  * @param {int}  pk_idValue  [description]
  * @param {Function} cb          [description]
  */
-var setTableActive = function (tableName, isActive, table_PK_IDField, pk_idValue, cb) {
+var setTableActive = async function (tableName, isActive, table_PK_IDField, pk_idValue) {
   debug("other.DAL -> setTableActivee");
   var updateTableQuery = common.cloneObject(query.updateTableQuery);
   updateTableQuery.table = tableName;
@@ -23,13 +23,10 @@ var setTableActive = function (tableName, isActive, table_PK_IDField, pk_idValue
   updateTableQuery.update.push({
     field: "isActive",
     fValue: isActive
-  }, {
-      field: "modifiedDate",
-      fValue: d3.timeFormat(dbDateFormat)(new Date())
-    });
+  });
   updateTableQuery.filter.field = table_PK_IDField;
   updateTableQuery.filter.value = pk_idValue;
-  common.executeQuery(updateTableQuery, cb);
+  return await common.executeQuery(updateTableQuery);
 };
 
 /**
@@ -39,10 +36,10 @@ var setTableActive = function (tableName, isActive, table_PK_IDField, pk_idValue
  * @param  {Function} cb         [description]
  * @return {[type]}              [description]
  */
-var getModule = function (cb) {
+var getModule = async function () {
   debug("other.DAL -> getModule");
   var getModuleQuery = common.cloneObject(query.getModuleQuery);
-  common.executeQuery(getModuleQuery, cb);
+  return await common.executeQuery(getModuleQuery);
 }
 
 module.exports = {

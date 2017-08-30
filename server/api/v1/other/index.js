@@ -1,5 +1,5 @@
 var express = require('express');
-var controller = require('./other.controller');
+var services = require('./other.service');
 var middleware = require('../../../middleware');
 var formidable = require('express-formidable');
 var constant = require('../constant');
@@ -16,7 +16,7 @@ router.use(formidable.parse({
 
 
 //table Active API
-router.post('/active', middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, controller.tableActive);
-router.get("/getModule", middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, controller.getModule);
-router.post('/upload', middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, controller.uploadImage);
-router.get('/get-media/:type/:imageType/:fileName', controller.getMedia);
+router.post('/active', middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, services.tableActiveService);
+router.get("/getModule", middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, services.getModuleService);
+router.post('/upload', middleware.checkAccessToken, middleware.userRightsByAPI, middleware.logger, services.uploadImageService);
+router.get('/get-media/:type/:imageType/:fileName', services.getMediaService);

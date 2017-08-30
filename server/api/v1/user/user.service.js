@@ -707,7 +707,6 @@ var signinServiceAdmin = async function (request, response) {
                     userRights.push(objRights);
                 }
                 request.session.userInfo.userRights = userRights;
-                console.log(res_access_token);
                 return common.sendResponse(response, res_access_token);
             } else {
                 return common.sendResponse(response, res_access_token);

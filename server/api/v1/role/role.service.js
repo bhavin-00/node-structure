@@ -15,39 +15,29 @@ var d3 = require("d3");
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var addRoleService = function (request, cb) {
+var addRoleService = async function (request, response) {
   debug("role.service -> addRoleService");
-  if (request.body.role_id == undefined || request.body.role_id === "" || request.body.userTypeId == undefined || request.body.userTypeId === "" || request.body.roleName == undefined || request.body.roleName === "" || request.body.moduleRights == undefined || request.body.moduleRights === "") {
-    cb({
-      status: false,
-      error: constant.otherMessage.ERR_INVALID_ADD_ROLE_REQUEST
-    });
-    return;
-  }
+
+  var isValidObject = common.validateObject([request.body]);
+  var isValid = common.validateParams([request.body.role_id, request.body.userTypeId, request.body.roleName, request.body.moduleRights]);
+  if (!isValidObject || !isValid)
+    return common.sendResponse(response, constant.otherMessage.ERR_INVALID_ADD_ROLE_REQUEST, false);
 
   var roleId = request.body.role_id;
-  if (roleId == -1) {
-    roleDAL.addRole(request.body.roleName, request.body.userTypeId, request.body.moduleRights, function (result) {
-      if (result.status === false) {
-        cb(result);
-      } else {
-        cb({
-          status: true,
-          data: constant.otherMessage.ROLE_CREATED_SUCCESSFUL
-        });
-      }
-    });
-  } else {
-    roleDAL.updateRoleById(roleId, request.body.roleName, request.body.userTypeId, request.body.moduleRights, function (result) {
-      if (result.status === false) {
-        cb(result);
-      } else {
-        cb({
-          status: true,
-          data: constant.otherMessage.ROLE_UPDATED_SUCCESSFUL
-        });
-      }
-    });
+  try {
+    if (roleId == -1) {
+      let result = await roleDAL.addRole(request.body.roleName, request.body.userTypeId, request.body.moduleRights);
+      return common.sendResponse(response, constant.otherMessage.ROLE_CREATED_SUCCESSFUL, true);
+
+    } else {
+      var let = await roleDAL.updateRoleById(roleId, request.body.roleName, request.body.userTypeId, request.body.moduleRights);
+      return common.sendResponse(response, constant.otherMessage.ROLE_UPDATED_SUCCESSFUL, true);
+    }
+
+  }
+  catch (ex) {
+    debug(ex);
+    return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
   }
 
 
@@ -61,27 +51,23 @@ var addRoleService = function (request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var getRoleModuleMappingService = function (request, cb) {
+var getRoleModuleMappingService = async function (request, response) {
   debug("role.service -> getRoleModuleMappingService");
-  if (request.params.role_id === undefined || request.params.module_id === undefined || request.params.role_id === 0 || request.params.module_id === 0) {
-    cb({
-      status: false,
-      error: constant.userMessages.ERR_INVALID_GET_ROLE_MODULE_MAPPING_REQUEST
-    });
-    return;
-  } else {
-    var roleID = request.params.role_id;
-    var moduleID = request.params.module_id;
-    roleDAL.getRoleModuleMapping(roleID, moduleID, function (result) {
-      if (result.status === false) {
-        cb(result);
-        return
-      }
-      cb({
-        status: true,
-        data: result.content
-      })
-    });
+  var isValidObject = common.validateObject([request.params]);
+  var isValid = common.validateParams([request.params.role_id, request.params.module_id]);
+  if (!isValidObject || !isValid)
+    return common.sendResponse(response, constant.otherMessage.ERR_INVALID_GET_ROLE_MODULE_MAPPING_REQUEST, false);
+
+  var roleID = request.params.role_id;
+  var moduleID = request.params.module_id;
+
+  try {
+    let result = await roleDAL.getRoleModuleMapping(roleID, moduleID);
+    return common.sendResponse(response, result.content, true);
+  }
+  catch (ex) {
+    debug(ex);
+    return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
   }
 }
 
@@ -93,41 +79,26 @@ var getRoleModuleMappingService = function (request, cb) {
  * @param  {Function} cb      [description]
  * @return {[type]}           [description]
  */
-var removeRoleService = function (request, cb) {
+var removeRoleService = async function (request, response) {
   debug("role.service -> removeRoleService");
+  var isValidObject = common.validateObject([request.params]);
+  var isValid = common.validateParams([request.params.role_id]);
+  if (!isValidObject || !isValid)
+    return common.sendResponse(response, constant.userMessages.ERR_INVALID_ROLE_DELETE_REQUEST, false);
 
-  if (request.params.role_id === undefined) {
-    cb({
-      status: false,
-      error: constant.userMessages.ERR_INVALID_ROLE_DELETE_REQUEST
-    });
-    return;
-  } else {
-    var roleId = request.params.role_id;
-    roleDAL.checkUserExistanceWithRole(roleId, function (result) {
-      if (result.status === false) {
-        cb(result);
-        return;
-      } else if (result.content.length > 0) {
-        cb({
-          status: false,
-          error: constant.userMessages.ERR_CANNOT_REMOVE_ROLE_NOW
-        });
-        return;
-      } else {
-        roleDAL.removeRole(roleId, function (result) {
-          if (result.status === false) {
-            cb(result);
-            return
-          }
-          cb({
-            status: true,
-            data: constant.userMessages.MSG_ROLE_SUCESSFULLY_DELETED
-          })
-        });
-      }
-    });
+  var roleId = request.params.role_id;
 
+  try {
+    let result = await roleDAL.checkUserExistanceWithRole(roleId);
+    if (result.content.length > 0)
+      return common.sendResponse(response, constant.userMessages.ERR_CANNOT_REMOVE_ROLE_NOW, false);
+
+    let resultRemoveRole = await roleDAL.removeRole(roleId);
+    return common.sendResponse(response, constant.userMessages.MSG_ROLE_SUCESSFULLY_DELETED, true);
+  }
+  catch (ex) {
+    debug(ex);
+    return common.sendResponse(response, constant.userMessages.MSG_ERROR_IN_QUERY, false);
   }
 };
 
